@@ -1,26 +1,49 @@
+// import { Injectable } from '@angular/core';
+
+// import { Observable, of } from 'rxjs';
+// import { map } from 'rxjs/operators';
+
+// import { Hero } from '../models/hero';
+// import { HEROES } from '../configs/mock-heroes';
+// import { MessageService } from '../message.service';
+// import { StorageService } from './storage.service';
+
+// @Injectable({ providedIn: 'root' })
+// export class HeroService {
+//   constructor(
+//     private messageService: MessageService,
+//     private storageService: StorageService
+//   ) {}
+
+//   getHeroes(): Observable<Hero[]> {
+//     return this.storageService.data$.pipe(map((data) => data.heroes));
+//   }
+
+//   getHero(id: number): Observable<Hero | undefined> {
+//     return this.storageService.data$.pipe(
+//       map((data) => data.heroes.find((hero) => hero.id === id))
+//     );
+//   }
+// }
+
 import { Injectable } from '@angular/core';
-
-import { Observable, of } from 'rxjs';
-
+import { map } from 'rxjs/operators';
 import { Hero } from '../models/hero';
-import { HEROES } from '../configs/mock-heroes';
-import { MessageService } from '../message.service';
+import { Weapon } from '../models/weapon';
+import { BaseModelService } from './BaseModel.service';
+import { StorageService } from './storage.service';
 
 @Injectable({ providedIn: 'root' })
-export class HeroService {
-  constructor(private messageService: MessageService) {}
+export class HeroService extends BaseModelService<Hero> {
+  constructor(private storageService: StorageService) {
+    super();
 
-  getHeroes(): Observable<Hero[]> {
-    const heroes = of(HEROES);
-    // this.messageService.add('HeroService: fetched heroes');
-    return heroes;
+    this.initData();
   }
 
-  getHero(id: number): Observable<Hero> {
-    // For now, assume that a hero with the specified `id` always exists.
-    // Error handling will be added in the next step of the tutorial.
-    const hero = HEROES.find((h) => h.id === id)!;
-    // this.messageService.add(`HeroService: fetched hero id=${id}`);
-    return of(hero);
+  initData(): void {
+    this.storageService.data$
+      .pipe(map((data) => data.heroes))
+      .subscribe(this.dataSubject$);
   }
 }
