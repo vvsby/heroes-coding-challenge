@@ -5,5 +5,9 @@
     <label for="hero-name">Hero name: </label>
     <input id="hero-name" [(ngModel)]="hero.name" placeholder="Hero name"/>
   </div>
+  <div>
+    <label for="hero-name">Hero name: </label>
+    <input [(ngModel)]="hero.health" id="hero-health" min="0" placeholder="Hero health" type="number"/>
+  </div>
   <button (click)="goBack()">go back</button>
 </div>
