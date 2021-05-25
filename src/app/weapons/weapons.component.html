@@ -1,0 +1,10 @@
+<h2>Weapons</h2>
+<ul class="weapons">
+  <li *ngFor="let weapon of weapons">
+    <a routerLink="/weapons/{{weapon.id}}">
+      <span class="badge">{{weapon.id}}</span>
+      {{weapon.name}}
+      <small>({{weapon.damage}})</small>
+    </a>
+  </li>
+</ul>

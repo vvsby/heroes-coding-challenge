@@ -29,7 +29,7 @@ Open to all countries.  Open to remote work.  Flexible hours.
 ## Minimum Tasks
 
 - [X] Add a health property to each hero. Default it to 100
-- [ ] Add a tab for weapons. It has the properties: id, name, damage
+- [x] Add a tab for weapons. It has the properties: id, name, damage
 - [ ] Add a tab for armour. It has the properties: id, name, health
 - [ ] Add a weapon property to each hero
 - [ ] Add an armour property to each hero ( a hero’s health is hero.health + armour.health)
