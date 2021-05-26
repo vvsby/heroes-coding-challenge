@@ -1,7 +1,6 @@
-<h2>Top Heroes</h2>
+<h2>Heroes</h2>
 <div class="heroes-menu">
-  <a *ngFor="let hero of heroes"
-     routerLink="/heroes/{{hero.id}}">
-    {{hero.name}}
-  </a>
+  <a (click)="heroClickHandler(hero)" *ngFor="let hero of heroes$ | async">{{hero.name}}</a>
 </div>
+
+<app-arena [heroes]="selectedHeroes"></app-arena>

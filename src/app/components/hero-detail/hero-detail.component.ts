@@ -52,8 +52,6 @@ export class HeroDetailComponent implements OnInit {
   }
 
   handleInputChange(e: any, hero: HeroInterface) {
-    console.log(`HeroDetailComponent.handleInputChange`, e);
-
     if (!e.target.files) {
       return;
     }
@@ -62,13 +60,13 @@ export class HeroDetailComponent implements OnInit {
     const pattern = /image-*/;
 
     if (!file.type.match(pattern)) {
-      alert('invalid format');
+      alert('invalid image format');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (evt: ProgressEvent<FileReader>) => {
-      hero.imageSrc = evt.target!.result;
+      hero.imageSrc = evt.target!.result as string;
     };
     reader.readAsDataURL(file);
   }

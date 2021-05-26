@@ -34,9 +34,9 @@ Open to all countries.  Open to remote work.  Flexible hours.
 - [x] Add a weapon property to each hero
 - [x] Add an armour property to each hero ( a hero’s health is hero.health + armour.health)
 - [x] Add ImageSrc to each hero. Allows you to add an image
-- [ ] Add a canvas (Konva framework) to the dashboard page
-- [ ] When click on hero on the dashboard page it adds them to the canvas, showing their hero.imageSrc on the canvas
-- [ ] When click on them again they are removed from the canvas
+- [x] Add a canvas (Konva framework) to the dashboard page
+- [x] When click on hero on the dashboard page it adds them to the canvas, showing their hero.imageSrc on the canvas
+- [x] When click on them again they are removed from the canvas
 - [ ] Every second everyone on the stage attacks, dealing the damage of the weapon in their hand to all other heroes
 - [ ] You can click on hero and change the weapon and it updates the current battle
 - [ ] When the hero gets down to <50 health show a red background around the hero

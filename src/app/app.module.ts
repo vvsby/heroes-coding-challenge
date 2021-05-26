@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { ArenaComponent } from './components/arena/arena.component';
 import { ArmourDetailComponent } from './components/armour-detail/armour-detail.component';
 import { ArmoursComponent } from './components/armours/armours.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
@@ -32,6 +33,7 @@ import { WeaponsComponent } from './components/weapons/weapons.component';
     MessagesComponent,
     HeaderComponent,
     PageNotFoundComponent,
+    ArenaComponent,
   ],
   bootstrap: [AppComponent],
 })
