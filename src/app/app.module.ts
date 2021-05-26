@@ -9,6 +9,8 @@ import { HeroesComponent } from './pages/heroes/heroes.component';
 import { MessagesComponent } from './messages/messages.component';
 
 import { AppRoutingModule } from './app-routing.module';
+import { WeaponsComponent } from './pages/weapons/weapons.component';
+import { ArmoursComponent } from './pages/armours/armours.component';
 
 @NgModule({
   imports: [BrowserModule, FormsModule, AppRoutingModule],
@@ -18,6 +20,8 @@ import { AppRoutingModule } from './app-routing.module';
     HeroesComponent,
     HeroDetailComponent,
     MessagesComponent,
+    WeaponsComponent,
+    ArmoursComponent,
   ],
   bootstrap: [AppComponent],
 })

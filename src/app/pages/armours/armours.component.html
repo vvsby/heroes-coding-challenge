@@ -1,0 +1,8 @@
+<h2>List armours</h2>
+<ul class="armours">
+  <li *ngFor="let armour of armours$ | async">
+    <a routerLink="/armour/detail/{{ armour.id }}">
+      <span class="badge">{{ armour.id }}</span> {{ armour.name }}
+    </a>
+  </li>
+</ul>
