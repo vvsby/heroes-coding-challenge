@@ -12,5 +12,6 @@ export class AppComponent {
     { route: '/dashboard', title: 'Dashboard' },
     { route: '/heroes', title: 'Heroes' },
     { route: '/weapons', title: 'Weapons' },
+    { route: '/armours', title: 'Armours' },
   ];
 }

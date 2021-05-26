@@ -1,3 +1,4 @@
+import { ArmourInterface } from './interfaces/armour.interface';
 import { HeroInterface } from './interfaces/hero.interface';
 import { WeaponInterface } from './interfaces/weapon.interface';
 
@@ -21,4 +22,13 @@ export const WEAPONS: WeaponInterface[] = [
   { id: 24, name: 'F1', damage: 80 },
   { id: 25, name: 'Bazooka', damage: 75 },
   { id: 26, name: 'Uzi', damage: 10 },
+];
+
+export const ARMOURS: ArmourInterface[] = [
+  { id: 31, name: 'Wood', health: 20 },
+  { id: 32, name: 'Metal', health: 40 },
+  { id: 33, name: 'Gold', health: 30 },
+  { id: 34, name: 'Carbon', health: 100 },
+  { id: 35, name: 'Titan', health: 150 },
+  { id: 36, name: 'Amazing', health: 500 },
 ];

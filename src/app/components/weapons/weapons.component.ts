@@ -3,7 +3,7 @@ import { WeaponInterface } from '../../interfaces/weapon.interface';
 import { WeaponService } from '../../services/weapon.service';
 
 @Component({
-  selector: 'app-heroes',
+  selector: 'app-weapons',
   templateUrl: './weapons.component.html',
   styleUrls: ['./weapons.component.css'],
 })
