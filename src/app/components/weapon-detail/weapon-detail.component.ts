@@ -2,8 +2,8 @@ import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Weapon } from '../weapon';
-import { WeaponService } from '../weapon.service';
+import { WeaponInterface } from '../../interfaces/weapon.interface';
+import { WeaponService } from '../../services/weapon.service';
 
 @Component({
   selector: 'app-weapon-detail',
@@ -11,7 +11,7 @@ import { WeaponService } from '../weapon.service';
   styleUrls: ['./weapon-detail.component.css'],
 })
 export class WeaponDetailComponent implements OnInit {
-  weapon: Weapon | undefined;
+  weapon: WeaponInterface | undefined;
 
   constructor(
     private route: ActivatedRoute,

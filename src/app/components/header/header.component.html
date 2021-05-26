@@ -1,0 +1,6 @@
+<h1>{{title}}</h1>
+<nav>
+  <ng-template [ngForOf]="menu" let-item ngFor>
+    <a [routerLink]="item.route">{{item.title}}</a>
+  </ng-template>
+</nav>

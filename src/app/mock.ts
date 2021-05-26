@@ -1,7 +1,7 @@
-import { Hero } from './hero';
-import { Weapon } from './weapon';
+import { HeroInterface } from './interfaces/hero.interface';
+import { WeaponInterface } from './interfaces/weapon.interface';
 
-export const HEROES: Hero[] = [
+export const HEROES: HeroInterface[] = [
   { id: 11, name: 'Dr Nice', health: 100 },
   { id: 12, name: 'Narco', health: 100 },
   { id: 13, name: 'Bombasto', health: 100 },
@@ -14,7 +14,7 @@ export const HEROES: Hero[] = [
   { id: 20, name: 'Tornado', health: 100 },
 ];
 
-export const WEAPONS: Weapon[] = [
+export const WEAPONS: WeaponInterface[] = [
   { id: 21, name: 'M16', damage: 20 },
   { id: 22, name: 'AK-47', damage: 25 },
   { id: 23, name: 'Sigma', damage: 10 },
