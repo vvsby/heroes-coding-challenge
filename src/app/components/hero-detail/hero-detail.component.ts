@@ -1,9 +1,13 @@
 import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-
+import { Observable } from 'rxjs';
+import { ArmourInterface } from '../../interfaces/armour.interface';
 import { HeroInterface } from '../../interfaces/hero.interface';
+import { WeaponInterface } from '../../interfaces/weapon.interface';
+import { ArmourService } from '../../services/armour.service';
 import { HeroService } from '../../services/hero.service';
+import { WeaponService } from '../../services/weapon.service';
 
 @Component({
   selector: 'app-hero-detail',
@@ -11,26 +15,39 @@ import { HeroService } from '../../services/hero.service';
   styleUrls: ['./hero-detail.component.css'],
 })
 export class HeroDetailComponent implements OnInit {
-  hero: HeroInterface | undefined;
+  hero$: Observable<HeroInterface> | undefined;
+  weapons$: Observable<WeaponInterface[]> | undefined;
+  armours$: Observable<ArmourInterface[]> | undefined;
 
   constructor(
     private route: ActivatedRoute,
     private heroService: HeroService,
+    private weaponService: WeaponService,
+    private armourService: ArmourService,
     private location: Location,
   ) {
   }
 
   ngOnInit(): void {
     this.getHero();
-  }
-
-  getHero(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.heroService.getHero(id)
-      .subscribe(hero => this.hero = hero);
+    this.getWeapons();
+    this.getArmours();
   }
 
   goBack(): void {
     this.location.back();
+  }
+
+  private getHero(): void {
+    const heroId = Number(this.route.snapshot.paramMap.get('id'));
+    this.hero$ = this.heroService.getHero(heroId);
+  }
+
+  private getWeapons() {
+    this.weapons$ = this.weaponService.getWeapons();
+  }
+
+  private getArmours() {
+    this.armours$ = this.armourService.getArmours();
   }
 }
