@@ -21,5 +21,10 @@
       <option *ngFor="let a of armours$ | async" [value]="a.id">{{a.name}}</option>
     </select>
   </div>
+  <div>
+    <label for="hero-image">Hero image: </label>
+    <img [src]="hero.imageSrc" alt="Hero image" class="hero-image"/>
+    <input (change)="handleInputChange($event, hero)" accept="image/*" id="hero-image" type="file"/>
+  </div>
   <button (click)="goBack()">go back</button>
 </div>

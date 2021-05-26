@@ -50,4 +50,26 @@ export class HeroDetailComponent implements OnInit {
   private getArmours() {
     this.armours$ = this.armourService.getArmours();
   }
+
+  handleInputChange(e: any, hero: HeroInterface) {
+    console.log(`HeroDetailComponent.handleInputChange`, e);
+
+    if (!e.target.files) {
+      return;
+    }
+
+    const file = e.target.files[0];
+    const pattern = /image-*/;
+
+    if (!file.type.match(pattern)) {
+      alert('invalid format');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (evt: ProgressEvent<FileReader>) => {
+      hero.imageSrc = evt.target!.result;
+    };
+    reader.readAsDataURL(file);
+  }
 }

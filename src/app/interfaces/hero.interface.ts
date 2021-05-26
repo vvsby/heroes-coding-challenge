@@ -4,4 +4,5 @@ export interface HeroInterface {
   health: number;
   weaponId?: number;
   armourId?: number;
+  imageSrc?: string | ArrayBuffer | null;
 }

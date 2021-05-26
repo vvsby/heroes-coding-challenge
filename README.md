@@ -33,7 +33,7 @@ Open to all countries.  Open to remote work.  Flexible hours.
 - [x] Add a tab for armour. It has the properties: id, name, health
 - [x] Add a weapon property to each hero
 - [x] Add an armour property to each hero ( a hero’s health is hero.health + armour.health)
-- [ ] Add ImageSrc to each hero. Allows you to add an image
+- [x] Add ImageSrc to each hero. Allows you to add an image
 - [ ] Add a canvas (Konva framework) to the dashboard page
 - [ ] When click on hero on the dashboard page it adds them to the canvas, showing their hero.imageSrc on the canvas
 - [ ] When click on them again they are removed from the canvas

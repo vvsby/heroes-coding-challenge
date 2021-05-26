@@ -2,6 +2,8 @@
 label {
   color: #435960;
   font-weight: bold;
+  width: 150px;
+  display: inline-block;
 }
 
 input, select {
@@ -25,4 +27,9 @@ button:disabled {
   background-color: #eee;
   color: #ccc;
   cursor: auto;
+}
+
+.hero-image {
+  max-width: 300px;
+  max-height: 300px
 }
