@@ -6,3 +6,9 @@ export interface HeroInterface {
   armourId?: number;
   imageSrc?: string;
 }
+
+// ToDo better use model
+export interface HeroExtendedInterface extends HeroInterface {
+  attackDamage: number;
+  remainingEnergy: number;
+}

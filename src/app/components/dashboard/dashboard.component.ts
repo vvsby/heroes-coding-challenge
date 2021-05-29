@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { HeroInterface } from '../../interfaces/hero.interface';
+import { ArmourInterface } from '../../interfaces/armour.interface';
+import { HeroExtendedInterface, HeroInterface } from '../../interfaces/hero.interface';
+import { WeaponInterface } from '../../interfaces/weapon.interface';
+import { ArmourService } from '../../services/armour.service';
 import { HeroService } from '../../services/hero.service';
+import { WeaponService } from '../../services/weapon.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,13 +14,20 @@ import { HeroService } from '../../services/hero.service';
 })
 export class DashboardComponent implements OnInit {
   heroes$: Observable<HeroInterface[]> | undefined;
-  selectedHeroes: HeroInterface[] = [];
+  selectedHeroes: HeroExtendedInterface[] = [];
+  weapons: WeaponInterface[] = [];
+  armours: ArmourInterface[] = [];
 
-  constructor(private heroService: HeroService) {
+  constructor(
+    private heroService: HeroService,
+    private weaponService: WeaponService,
+    private armourService: ArmourService,
+  ) {
   }
 
   ngOnInit() {
     this.loadHeroes();
+    this.loadWeaponsAndArmours();
   }
 
   loadHeroes(): void {
@@ -24,14 +35,26 @@ export class DashboardComponent implements OnInit {
   }
 
   heroClickHandler(hero: HeroInterface) {
-    const index = this.selectedHeroes.findIndex(h => h === hero);
+    const index = this.selectedHeroes.findIndex(h => h.id === hero.id);
 
     if (index >= 0) {
       this.selectedHeroes.splice(index, 1);
     } else {
-      this.selectedHeroes.push(hero);
+      // ToDo if we will use model instead interface - we can encapsulate all that logic
+      const { damage: weaponDamage } = this.weapons.find(w => w.id === hero.weaponId) || { damage: 0 };
+      const { health: armourHeals } = this.armours.find(a => a.id === hero.armourId) || { health: 0 };
+
+      const remainingEnergy: number = hero.health + armourHeals;
+      const attackDamage: number = weaponDamage;
+      const heroExtended: HeroExtendedInterface = { ...hero, remainingEnergy, attackDamage };
+      this.selectedHeroes.push(heroExtended);
     }
 
     this.selectedHeroes = this.selectedHeroes.slice();
+  }
+
+  private loadWeaponsAndArmours() {
+    this.weaponService.getWeapons().subscribe(weapons => this.weapons = weapons);
+    this.armourService.getArmours().subscribe(armours => this.armours = armours);
   }
 }

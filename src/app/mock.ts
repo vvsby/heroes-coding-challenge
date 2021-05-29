@@ -3,11 +3,11 @@ import { HeroInterface } from './interfaces/hero.interface';
 import { WeaponInterface } from './interfaces/weapon.interface';
 
 export const HEROES: HeroInterface[] = [
-  { id: 11, name: 'Dr Nice', health: 100 },
-  { id: 12, name: 'Narco', health: 100, armourId: 31, weaponId: 26 },
-  { id: 13, name: 'Bombasto', health: 100, armourId: 36, weaponId: 24 },
-  { id: 14, name: 'Celeritas', health: 100, armourId: 33 },
-  { id: 15, name: 'Magneta', health: 100, weaponId: 22 },
+  { id: 11, name: 'Dr Nice', health: 100, imageSrc: `/assets/img/1.jpeg` },
+  { id: 12, name: 'Narco', health: 100, armourId: 31, weaponId: 26, imageSrc: `/assets/img/2.jpeg` },
+  { id: 13, name: 'Bombasto', health: 100, armourId: 36, weaponId: 24, imageSrc: `/assets/img/3.jpeg` },
+  { id: 14, name: 'Celeritas', health: 100, armourId: 33, imageSrc: `/assets/img/4.jpeg` },
+  { id: 15, name: 'Magneta', health: 100, weaponId: 22, imageSrc: `/assets/img/5.jpeg` },
   { id: 16, name: 'RubberMan', health: 100 },
   { id: 17, name: 'Dynama', health: 100 },
   { id: 18, name: 'Dr IQ', health: 100 },
