@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import Konva from 'konva';
 import { BehaviorSubject, of } from 'rxjs';
+import { PlayService } from 'src/app/services/play.service';
 import { CharacterLayer } from 'src/app/shared/CharacterLayer';
 import { PlayLayer } from 'src/app/shared/PlayLayer';
 import { Hero } from '../../models/hero';
@@ -16,7 +17,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   // readonly canvasId = 'container';
 
-  constructor(private heroService: HeroService) {}
+  constructor(
+    private heroService: HeroService,
+    private playService: PlayService
+  ) {}
 
   ngOnInit() {
     this.getHeroes();
@@ -34,7 +38,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       height: 600,
     });
 
-    const playerLayer = new PlayLayer();
+    const playerLayer = new PlayLayer(this.playService);
     stage.add(playerLayer);
   }
 

@@ -1,7 +1,7 @@
-import { cloneDeep, flatten, flattenDeep, forEach } from 'lodash';
 import { CharacterAnimation } from '../shared/CharacterLayer';
 import { convertImageToSpriteModel } from '../utils/sprite.util';
 import { Armour } from './armour';
+import { Character } from './character';
 import { Weapon } from './weapon';
 
 export interface AnimationImage {
@@ -10,7 +10,7 @@ export interface AnimationImage {
   width: number;
   height: number;
 }
-export class Hero {
+export class Hero extends Character {
   readonly id: number;
   name: string;
 
@@ -27,7 +27,6 @@ export class Hero {
   private armour?: Armour;
 
   readonly imgSrc: Record<CharacterAnimation, string>;
-  readonly animationImages: Record<CharacterAnimation, AnimationImage[]>;
 
   constructor(params: {
     id: number;
@@ -36,10 +35,23 @@ export class Hero {
     minDamage: number;
     maxDamage: number;
     imgSrc: Record<CharacterAnimation, string>;
-    animationImages: Record<CharacterAnimation, AnimationImage[]>;
+    animationImages: Record<
+      CharacterAnimation,
+      { widthPerImage: number; image: AnimationImage[] }
+    >;
   }) {
     const { id, name, health, minDamage, maxDamage, imgSrc, animationImages } =
       params;
+
+    super({
+      id,
+      name,
+      health,
+      minDamage,
+      maxDamage,
+      imgSrc,
+      animationImages,
+    });
 
     this.id = id;
     this.name = name;
@@ -48,41 +60,17 @@ export class Hero {
     this.minDamage = minDamage;
     this.maxDamage = maxDamage;
     this.imgSrc = imgSrc;
-    this.animationImages = animationImages;
   }
 
   get heroHealth(): number {
     return this.health + (this.armour?.health || 0);
   }
 
-  get heroDamage(): number {
+  get realDamage(): number {
     // random the hero base dame between min and max damage
-    const baseHeroDamage = Math.random() * (this.maxDamage - this.minDamage);
+    const baseHeroDamage =
+      this.minDamage + Math.random() * (this.maxDamage - this.minDamage);
+    console.log(baseHeroDamage + (this.weapons?.damage || 0));
     return baseHeroDamage + (this.weapons?.damage || 0);
-  }
-
-  getImgByAnimation(animation: CharacterAnimation): string {
-    return this.imgSrc[animation];
-  }
-
-  get animations(): Record<CharacterAnimation, Array<number>> {
-    const _animations: Record<CharacterAnimation | string, Array<number>> = {};
-
-    Object.keys(this.animationImages).forEach((animationName) => {
-      const sprite = convertImageToSpriteModel(
-        this.animationImages[animationName as CharacterAnimation]
-      );
-      _animations[animationName] = sprite;
-    });
-
-    return _animations;
-  }
-
-  getDame(damage: number) {
-    this.currentHealth -= damage;
-  }
-
-  get currentHealthPercent(): number {
-    return this.currentHealth / this.health;
   }
 }

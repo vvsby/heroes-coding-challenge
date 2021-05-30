@@ -5,8 +5,9 @@ import { LayerConfig } from 'konva/lib/Layer';
 import { SpriteConfig } from 'konva/lib/shapes/Sprite';
 import { isNil } from 'lodash';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter, first, switchMap, takeUntil } from 'rxjs/operators';
 import { HeroImageWidth } from '../configs/mock-heroes';
+import { Character } from '../models/character';
 import { Hero } from '../models/hero';
 import { OverTurned } from '../utils/character';
 
@@ -35,7 +36,9 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
   private healthBar: Konva.Group = new Konva.Group();
   // private config: ContainerConfig | undefined;
 
-  private hero: Hero | undefined = undefined;
+  character: Character | undefined = undefined;
+
+  // heroImageWidth$ = new BehaviorSubject<number>(0);
 
   private position$ = new BehaviorSubject<{
     x: number;
@@ -55,7 +58,7 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
    * @param callback callback function execute after setup
    */
   constructor(
-    hero$: Observable<Hero>,
+    character$: Observable<Character>,
     config?: ContainerConfig,
     overturn?: boolean,
     callback?: () => any
@@ -92,21 +95,57 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
 
     this.setAttrs(attrs);
 
-    hero$
+    character$
       .pipe(
         takeUntil(this.unSubscribe$),
-        filter((hero) => !isNil(hero))
+        filter((character) => !isNil(character))
       )
-      .subscribe((hero) => {
-        this.hero = hero;
+      .subscribe((character) => {
+        this.character = character;
 
         // we don't need to redraw the hero sprite
         if (!this.heroSprite) {
-          this.setupSprite(hero);
+          this.setupSprite(character);
         }
 
-        this.setupHealthBar(hero);
+        this.setupHealthBar(character);
       });
+
+    character$
+      .pipe(switchMap((character) => character.currentHpPercent$))
+      .subscribe((currentHpPercent) => {
+        // debugger;
+        const healthPercent = this.healthBar.getChildren(
+          (node) => node.name() === 'healthPercent'
+        )[0];
+        healthPercent.setAttrs({
+          width: currentHpPercent * healthBarWidth,
+        });
+      });
+
+    character$
+      .pipe(
+        switchMap((character) => character.isAlive$),
+        filter((isAlive) => !isAlive),
+        first()
+      )
+      .subscribe(() => {
+        this.updateAnimation(CharacterAnimation.dead, () => {
+          // const time = this.timeToDoneASprite();
+          // console.log(time);
+          debugger;
+          setTimeout(() => {
+            this.heroSprite?.stop();
+          }, 950);
+        });
+      });
+  }
+
+  timeToDoneASprite() {
+    const ani = this.heroSprite?.getAttr('animation') as CharacterAnimation;
+    const frameRate = this.heroSprite?.getAttr('frameRate') as number;
+    const imageLength = this.character?.animationImages[ani].image.length;
+    return (Math.floor((imageLength! / frameRate) * 100) / 100) * 1000;
   }
 
   /**
@@ -114,8 +153,8 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
    * @param hero current hero
    * @param config
    */
-  setupSprite(hero: Hero) {
-    const { animations } = hero;
+  setupSprite(character: Character) {
+    const { animations } = character;
     const heroAnimation: CharacterAnimation = CharacterAnimation.standing;
 
     // handle image load and init sprite
@@ -133,13 +172,15 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
         y: 0,
       });
 
+      this.heroSprite.listening(false);
+
       // this.add(this.heroSprite);
       this.heroGroups.removeChildren();
       this.heroGroups.add(this.heroSprite);
       this.heroSprite.start();
     };
 
-    imageObj.src = hero.getImgByAnimation(heroAnimation);
+    imageObj.src = character.getImgByAnimation(heroAnimation);
   }
 
   /**
@@ -147,7 +188,7 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
    * HealthBar = healthBar wrapper + healthBar content (that shows remaining hp)
    * @param config
    */
-  setupHealthBar(hero: Hero) {
+  setupHealthBar(character: Character) {
     const healthBarWrapper = new Konva.Rect({
       x: healthBarOffsetHeroX,
       y: -20,
@@ -156,42 +197,56 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
       stroke: '#444',
       strokeWidth: 2,
     });
+    healthBarWrapper.listening(false);
 
     const healthPercent = new Konva.Rect({
+      name: 'healthPercent',
       x: healthBarOffsetHeroX,
       y: -20,
-      width: hero.currentHealthPercent * healthBarWidth,
+      width: healthBarWidth,
       height: 15,
       fill: 'green',
     });
+    healthPercent.listening(false);
 
     this.healthBar.removeChildren();
     this.healthBar.add(healthBarWrapper);
     this.healthBar.add(healthPercent);
   }
 
-  getCurrentAndGoalPosX(): number[] | undefined {
-    const stage = this.getStage();
-    if (!stage) return;
-    const goalX = stage.width() / 2 - (this.scaleX() === 1 ? this.width() : 0);
-    const currentPosX = this.position$.value.x;
-    return [currentPosX, goalX];
-  }
+  // getCurrentAndGoalPosX(): number[] | undefined {
+  //   const stage = this.getStage();
+  //   if (!stage) return;
+  //   const goalX = stage.width() / 2 - (this.scaleX() === 1 ? this.width() : 0);
+  //   const currentPosX = this.position$.value.x;
+  //   return [currentPosX, goalX];
+  // }
 
-  updateAnimation = (ani: CharacterAnimation) => {
-    if (!this.hero) {
+  updateAnimation = (ani: CharacterAnimation, callback?: () => any) => {
+    if (!this.character) {
       return;
     }
 
+    // debugger;
     const imageObj = new Image();
     imageObj.onload = () => {
+      const aniImages = this.character?.animationImages[ani];
+      const imageWidth = aniImages?.widthPerImage;
+      const frameLength = aniImages?.image.length;
+      this.setAttr('width', imageWidth);
       this.heroSprite?.setAttrs({
         animation: ani,
         image: imageObj,
+        width: imageWidth,
+        frameRate: frameLength,
       });
+
+      if (callback) {
+        callback();
+      }
     };
 
-    imageObj.src = this.hero?.getImgByAnimation(ani);
+    imageObj.src = this.character?.getImgByAnimation(ani);
   };
 
   overTurnConfig() {
@@ -201,42 +256,6 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
       [OverTurned]: true,
     };
   }
-
-  // goTo({ x, y }: { x: number; y: number }, callback?: () => any): void {
-  //   // const current
-  //   const stage = this.getStage();
-  //   if (!stage) return;
-
-  //   const goalX = stage.width() / 2 - this.width();
-
-  //   const self = this;
-  //   const stageWidth = stage.width();
-
-  //   // s = v * t
-  //   // x2 - x = v * deltaT
-  //   // x2 = x + v * deltaT
-  //   // => we just have to setup the v belong to the stage
-  //   debugger;
-  //   const deltaT = 2000;
-  //   const currentPosX = this.position$.value.x;
-  //   const v = (goalX - currentPosX) / deltaT;
-
-  // const moveAni = new Konva.Animation(function (frame) {
-  //   if (!frame) return;
-
-  //   const newPosX = Math.min(currentPosX + frame?.time * v, goalX);
-  //   self?.x(newPosX);
-
-  //   // check to stop animation
-  //   if (newPosX === goalX) {
-  //     debugger;
-  //     moveAni.stop();
-  //     callback && callback();
-  //   }
-  // }, this);
-
-  // moveAni.start();
-  // }
 
   ngOnDestroy() {
     this.unSubscribe$.next();

@@ -1,6 +1,6 @@
 import { Hero } from '../models/hero';
 
-export const HeroImageWidth = 249.1;
+export const HeroImageWidth = 250;
 
 const imagesPosition = [
   {
@@ -65,26 +65,102 @@ const imagesPosition = [
   },
 ];
 
+const imagesPositionDead = [
+  {
+    x: 0,
+    y: 0,
+    width: 377,
+    height: 300,
+  },
+  {
+    x: 754,
+    y: 0,
+    width: 377,
+    height: 300,
+  },
+  {
+    x: 1131,
+    y: 0,
+    width: 377,
+    height: 300,
+  },
+  {
+    x: 1508,
+    y: 0,
+    width: 377,
+    height: 300,
+  },
+  {
+    x: 1885,
+    y: 0,
+    width: 377,
+    height: 300,
+  },
+  {
+    x: 2262,
+    y: 0,
+    width: 377,
+    height: 300,
+  },
+  {
+    x: 2639,
+    y: 0,
+    width: 377,
+    height: 300,
+  },
+  {
+    x: 3016,
+    y: 0,
+    width: 377,
+    height: 300,
+  },
+  {
+    x: 3393,
+    y: 0,
+    width: 377,
+    height: 300,
+  },
+  {
+    x: 3770,
+    y: 0,
+    width: 377,
+    height: 300,
+  },
+];
+
 export const HEROES: Hero[] = [
   {
     id: 1,
     name: 'Dr Nice',
-    minDamage: 30,
-    maxDamage: 35,
+    health: 150,
+    minDamage: 40,
+    maxDamage: 50,
     imgSrc: {
-      standing: '/assets/images/knight-standing.png',
-      run: '/assets/images/knight-run.png',
-      attack: '/assets/images/knight-attack.png',
-      dead: '/assets/images/knight-dead.png',
+      standing: '/assets/images/knight/standing.png',
+      run: '/assets/images/knight/run.png',
+      attack: '/assets/images/knight/attack.png',
+      dead: '/assets/images/knight/dead.png',
     },
     animationImages: {
-      standing: imagesPosition,
+      standing: {
+        widthPerImage: 249.1,
+        image: imagesPosition,
+      },
 
-      run: imagesPosition,
+      run: {
+        widthPerImage: 249.1,
+        image: imagesPosition,
+      },
 
-      attack: imagesPosition,
+      attack: {
+        widthPerImage: 249.1,
+        image: imagesPosition,
+      },
 
-      dead: imagesPosition,
+      dead: {
+        widthPerImage: 377,
+        image: imagesPositionDead,
+      },
     },
   },
   // { id: 2, name: 'Narco', minDamage: 30, maxDamage: 35 },
