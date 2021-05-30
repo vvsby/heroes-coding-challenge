@@ -1,5 +1,5 @@
 import { cloneDeep, flatten, flattenDeep, forEach } from 'lodash';
-import { HeroAnimation } from '../shared/HeroLayer';
+import { CharacterAnimation } from '../shared/CharacterLayer';
 import { convertImageToSpriteModel } from '../utils/sprite.util';
 import { Armour } from './armour';
 import { Weapon } from './weapon';
@@ -26,8 +26,8 @@ export class Hero {
   private weapons?: Weapon;
   private armour?: Armour;
 
-  readonly imgSrc: Record<HeroAnimation, string>;
-  readonly animationImages: Record<HeroAnimation, AnimationImage[]>;
+  readonly imgSrc: Record<CharacterAnimation, string>;
+  readonly animationImages: Record<CharacterAnimation, AnimationImage[]>;
 
   constructor(params: {
     id: number;
@@ -35,8 +35,8 @@ export class Hero {
     health?: number;
     minDamage: number;
     maxDamage: number;
-    imgSrc: Record<HeroAnimation, string>;
-    animationImages: Record<HeroAnimation, AnimationImage[]>;
+    imgSrc: Record<CharacterAnimation, string>;
+    animationImages: Record<CharacterAnimation, AnimationImage[]>;
   }) {
     const { id, name, health, minDamage, maxDamage, imgSrc, animationImages } =
       params;
@@ -61,16 +61,16 @@ export class Hero {
     return baseHeroDamage + (this.weapons?.damage || 0);
   }
 
-  getImgByAnimation(animation: HeroAnimation): string {
+  getImgByAnimation(animation: CharacterAnimation): string {
     return this.imgSrc[animation];
   }
 
-  get animations(): Record<HeroAnimation, Array<number>> {
-    const _animations: Record<HeroAnimation | string, Array<number>> = {};
+  get animations(): Record<CharacterAnimation, Array<number>> {
+    const _animations: Record<CharacterAnimation | string, Array<number>> = {};
 
     Object.keys(this.animationImages).forEach((animationName) => {
       const sprite = convertImageToSpriteModel(
-        this.animationImages[animationName as HeroAnimation]
+        this.animationImages[animationName as CharacterAnimation]
       );
       _animations[animationName] = sprite;
     });

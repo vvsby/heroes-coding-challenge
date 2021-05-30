@@ -4,7 +4,7 @@ import { BehaviorSubject, of, Subject } from 'rxjs';
 import { HEROES } from '../configs/mock-heroes';
 import { MessageService } from '../message.service';
 import { Hero } from '../models/hero';
-import { HeroLayer } from './HeroLayer';
+import { CharacterLayer, CharacterAnimation } from './CharacterLayer';
 
 // export type HeroAnimation = 'standing' | 'attack' | 'dead';
 @Directive()
@@ -23,9 +23,8 @@ export class PlayLayer extends Konva.Layer implements OnDestroy {
 
   initPlayer() {
     // const knight$ = new BehaviorSubject<Hero>(HEROES[0]);
-    const knight$ = new HeroLayer(of(HEROES[0]));
-    const knight2$ = new HeroLayer(of(HEROES[0]), {
-      x: 200,
+    const knight$ = new CharacterLayer(of(HEROES[0]));
+    const knight2$ = new CharacterLayer(of(HEROES[0]), {
       y: 100,
     } as any);
     knight$.addName('test');
@@ -44,7 +43,7 @@ export class PlayLayer extends Konva.Layer implements OnDestroy {
 
     this.children?.forEach((group) => {
       const [currentPosX, goalX] =
-        (group as HeroLayer).getCurrentAndGoalPosX() || [];
+        (group as CharacterLayer).getCurrentAndGoalPosX() || [];
 
       if (!currentPosX || !goalX) {
         console.error('currentPosX or goalX get invalid value');
@@ -53,6 +52,8 @@ export class PlayLayer extends Konva.Layer implements OnDestroy {
 
       const v = (goalX - currentPosX) / deltaT;
 
+      (group as CharacterLayer).updateAnimation(CharacterAnimation.run);
+
       const moveAni = new Konva.Animation(function (frame) {
         if (!frame) return;
 
@@ -60,8 +61,11 @@ export class PlayLayer extends Konva.Layer implements OnDestroy {
         group.x(newPosX);
 
         // check to stop animation
-        if (newPosX === goalX) {
+        if (newPosX >= goalX) {
           moveAni.stop();
+
+          // start attack on fight area
+          (group as CharacterLayer).updateAnimation(CharacterAnimation.attack);
         }
       }, this);
 

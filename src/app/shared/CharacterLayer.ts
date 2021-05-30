@@ -8,14 +8,14 @@ import { filter, takeUntil } from 'rxjs/operators';
 import { HeroImageWidth } from '../configs/mock-heroes';
 import { Hero } from '../models/hero';
 
-export enum HeroAnimation {
+export enum CharacterAnimation {
   standing = 'standing',
   run = 'run',
   attack = 'attack',
   dead = 'dead',
 }
 
-const defaultHeroPos = {
+const defaultCharacterPos = {
   x: 50,
   y: 50,
 };
@@ -27,46 +27,47 @@ const healthBarOffsetHeroX = (HeroImageWidth * 0.4) / 2;
 
 // export type HeroAnimation = 'standing' | 'attack' | 'dead';
 @Directive()
-export class HeroLayer extends Konva.Group implements OnDestroy {
+export class CharacterLayer extends Konva.Group implements OnDestroy {
   private heroGroups: Konva.Group = new Konva.Group();
-  private heroSprite: Konva.Sprite | undefined;
+  public heroSprite: Konva.Sprite | undefined;
   private healthBar: Konva.Group = new Konva.Group();
   private config: SpriteConfig | undefined;
+
+  private hero: Hero | undefined = undefined;
 
   private position$ = new BehaviorSubject<{
     x: number;
     y: number;
   }>({
-    x: defaultHeroPos.x,
-    y: defaultHeroPos.y,
+    x: defaultCharacterPos.x,
+    y: defaultCharacterPos.y,
   });
 
   private unSubscribe$ = new Subject();
 
   constructor(hero$: Observable<Hero>, config?: SpriteConfig) {
-    super({
-      x: !isNil(config?.x) ? config?.x : defaultHeroPos.x,
-      y: !isNil(config?.y) ? config?.y : defaultHeroPos.y,
-      width: HeroImageWidth,
-      height: 300,
-    });
+    super();
 
-    debugger;
     this.add(this.healthBar);
     this.add(this.heroGroups);
 
     // check config & store the position
-    if (config) {
-      const x = !isNil(config.x) ? config.x : defaultHeroPos.x;
-      const y = !isNil(config.y) ? config.y : defaultHeroPos.y;
+    // doesn't find any solution to
+    const x = config && !isNil(config.x) ? config.x : defaultCharacterPos.x;
+    const y = config && !isNil(config.y) ? config.y : defaultCharacterPos.y;
 
-      this.position$.next({
-        x,
-        y,
-      });
+    this.config = config;
+    this.position$.next({
+      x,
+      y,
+    });
 
-      this.config = config;
-    }
+    this.setAttrs({
+      x,
+      y,
+      width: HeroImageWidth,
+      height: 300,
+    });
 
     hero$
       .pipe(
@@ -74,6 +75,8 @@ export class HeroLayer extends Konva.Group implements OnDestroy {
         filter((hero) => !isNil(hero))
       )
       .subscribe((hero) => {
+        this.hero = hero;
+
         // we don't need to redraw the hero sprite
         if (!this.heroSprite) {
           this.setupSprite(hero, this.config);
@@ -91,14 +94,14 @@ export class HeroLayer extends Konva.Group implements OnDestroy {
   setupSprite(hero: Hero, config: SpriteConfig = {} as SpriteConfig) {
     const { animations } = hero;
 
-    const heroAnimation: HeroAnimation =
-      (config?.animation as HeroAnimation) || HeroAnimation.run;
+    const heroAnimation: CharacterAnimation =
+      (config?.animation as CharacterAnimation) || CharacterAnimation.standing;
 
     // handle image load and init sprite
     const imageObj = new Image();
     imageObj.onload = () => {
       this.heroSprite = new Konva.Sprite({
-        ...defaultHeroPos,
+        ...defaultCharacterPos,
         frameRate: 7,
         frameIndex: 0,
         width: HeroImageWidth,
@@ -156,6 +159,22 @@ export class HeroLayer extends Konva.Group implements OnDestroy {
     const currentPosX = this.position$.value.x;
     return [currentPosX, goalX];
   }
+
+  updateAnimation = (ani: CharacterAnimation) => {
+    if (!this.hero) {
+      return;
+    }
+
+    const imageObj = new Image();
+    imageObj.onload = () => {
+      this.heroSprite?.setAttrs({
+        animation: ani,
+        image: imageObj,
+      });
+    };
+
+    imageObj.src = this.hero?.getImgByAnimation(ani);
+  };
 
   // goTo({ x, y }: { x: number; y: number }, callback?: () => any): void {
   //   // const current

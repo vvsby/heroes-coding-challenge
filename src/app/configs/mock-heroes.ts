@@ -72,7 +72,7 @@ export const HEROES: Hero[] = [
     minDamage: 30,
     maxDamage: 35,
     imgSrc: {
-      standing: '/assets/images/knight-attack.png',
+      standing: '/assets/images/knight-standing.png',
       run: '/assets/images/knight-run.png',
       attack: '/assets/images/knight-attack.png',
       dead: '/assets/images/knight-dead.png',
