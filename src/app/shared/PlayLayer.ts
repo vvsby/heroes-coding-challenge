@@ -21,6 +21,8 @@ const gapCharacterCenter = 70;
 export class PlayLayer extends Konva.Layer implements OnDestroy {
   private unSubscribe$ = new Subject();
 
+  // endGame$ = new BehaviorSubject<boolean>(false);
+
   //   private heroSubject$ = new BehaviorSubject<Hero[]>({});
 
   constructor(private playService: PlayService) {
@@ -65,12 +67,10 @@ export class PlayLayer extends Konva.Layer implements OnDestroy {
     );
 
     const heroLayers = heroes.map((hero, index) => {
-      debugger;
       return this.layerProvide('hero', hero, heroConfigs[index]);
     });
 
     const monsterLayers: CharacterLayer[] = monsters.map((monster, index) => {
-      debugger;
       return this.layerProvide('monster', monster, monsterConfigs[index]);
     });
 
@@ -113,16 +113,22 @@ export class PlayLayer extends Konva.Layer implements OnDestroy {
         this.playService.startGame();
       });
 
+    // this.playService.endGame$
+    //   .pipe(
+    //     filter((isEndGame) => !!isEndGame),
+    //     first()
+    //   )
+    //   .subscribe(() => {
+    //     this.endGame$.next(true);
+    //   });
+
     this.handleMatch();
   }
 
   handleMatch() {
     // todo: need to handle case remove match
     this.playService.matchs$
-      .pipe(
-        filter((matchs) => !isEmpty(matchs)),
-        takeUntil(this.unSubscribe$)
-      )
+      .pipe(takeUntil(this.unSubscribe$))
       .subscribe((matchs) => {
         matchs.forEach((match) => {
           if (match.status !== MatchStatus.end) {
@@ -168,8 +174,6 @@ export class PlayLayer extends Konva.Layer implements OnDestroy {
       let newPosX = currentPosX + frame?.time * vx;
       let newPosY = currentPosY + frame?.time * vy;
 
-      console.log(newPosY);
-
       // get the posX
       if (isOverTurned(characterLayer)) {
         newPosX = Math.max(newPosX, goalX);
@@ -190,7 +194,6 @@ export class PlayLayer extends Konva.Layer implements OnDestroy {
         (isOverTurned(characterLayer) && newPosX <= goalX) ||
         (!isOverTurned(characterLayer) && newPosX >= goalX)
       ) {
-        console.log(match);
         moveAni.stop();
 
         // start attack on fight area

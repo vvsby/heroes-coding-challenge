@@ -65,11 +65,20 @@
     </div>
 
     <button
+      *ngIf="gameState !== _gameState.finished"
       (click)="onFight()"
       [disabled]="gameState === _gameState.running"
       class="button-fight"
     >
       Fight
+    </button>
+
+    <button
+      *ngIf="gameState === _gameState.finished"
+      (click)="onPlayAgain()"
+      class="button-fight"
+    >
+      Play Again
     </button>
 
     <div class="team">

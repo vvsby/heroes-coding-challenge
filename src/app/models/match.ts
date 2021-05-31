@@ -1,6 +1,7 @@
 import { cloneDeep, isEmpty } from 'lodash';
 import { BehaviorSubject, from, interval, Observable, of } from 'rxjs';
 import {
+  distinctUntilChanged,
   filter,
   map,
   mergeMap,
@@ -34,6 +35,8 @@ export class Match {
   private _status$ = new BehaviorSubject<MatchStatus>(MatchStatus.preparing);
   status$: Observable<MatchStatus>;
 
+  winners$ = new BehaviorSubject<CharacterLayer[]>([]);
+
   currentLayers$ = new BehaviorSubject<{
     heroLayers: CharacterLayer[];
     monsterLayers: CharacterLayer[];
@@ -48,7 +51,6 @@ export class Match {
     posX: number,
     posY: number
   ) {
-    // debugger;
     this.heroLayers = heroLayers;
     this.monsterLayers = monsterLayers;
     this.posX = posX;
@@ -61,6 +63,10 @@ export class Match {
     this.currentLayers$.next({
       heroLayers: this.heroLayers,
       monsterLayers: this.monsterLayers,
+    });
+
+    this.winners$.pipe(filter((winners) => !isEmpty(winners))).subscribe(() => {
+      this._status$.next(MatchStatus.end);
     });
   }
 
@@ -83,35 +89,47 @@ export class Match {
   listenCharacterHp() {
     this.currentLayers$
       .pipe(
-        map((data) => [...data.heroLayers, ...data.monsterLayers]),
-        map((chracterLayers) =>
-          chracterLayers.map((layer) => layer.character?.isAlive$)
-        ),
-        switchMap((isAlive) => from(isAlive)),
-        filter((isAlive) => !isAlive)
+        // distinctUntilChanged(),
+        mergeMap((data) => from([...data.heroLayers, ...data.monsterLayers])),
+        // map((chracterLayers) =>
+        //   chracterLayers.map((layer) => layer.character?.isAlive$)
+        // ),
+
+        switchMap((characterLayer) => characterLayer.character?.isAlive$!),
+        filter((isAlive) => !isAlive && this.status !== MatchStatus.end)
       )
       .subscribe(() => {
         // dont deep clone the observable
         const currentLayer = this.currentLayers$.value;
-        debugger;
 
         // remove the dead layer
-        Object.keys(currentLayer).forEach((layerType) => {
-          let layers =
-            currentLayer[layerType as 'heroLayers' | 'monsterLayers'];
+        // Object.keys(currentLayer).forEach((layerType) => {
+        // let layers =
+        //   currentLayer[layerType as 'heroLayers' | 'monsterLayers'];
+        // layers = layers.filter((layer) => layer.character?.isAlive$.value);
+        // currentLayer[layerType as 'heroLayers' | 'monsterLayers'] =
+        //   layers as CharacterLayer[];
+        // });
 
-          layers = layers.filter((layer) => !layer.character?.isAlive);
-        });
-
-        if (
-          isEmpty(
-            currentLayer.heroLayers || isEmpty(currentLayer.monsterLayers)
-          )
-        ) {
-          this._status$.next(MatchStatus.end);
+        for (const type in currentLayer) {
+          let _type = type as 'heroLayers' | 'monsterLayers';
+          let layers = currentLayer[_type];
+          layers = layers.filter((layer) => layer.character?.isAlive);
+          currentLayer[_type] = layers;
         }
 
-        // debugger;
+        console.log(currentLayer);
+
+        if (
+          isEmpty(currentLayer.heroLayers) ||
+          isEmpty(currentLayer.monsterLayers)
+        ) {
+          const freeLayers = currentLayer.heroLayers.length
+            ? currentLayer.heroLayers
+            : currentLayer.monsterLayers;
+          this.winners$.next(freeLayers);
+        }
+
         console.log(currentLayer);
 
         this.currentLayers$.next(currentLayer);

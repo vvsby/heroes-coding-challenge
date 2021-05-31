@@ -129,7 +129,6 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
     character$
       .pipe(switchMap((character) => character.currentHpPercent$))
       .subscribe((currentHpPercent) => {
-        // debugger;
         const healthPercent = this.healthBar.getChildren(
           (node) => node.name() === 'healthPercent'
         )[0];
@@ -161,12 +160,13 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
           this.removeChildren();
         })
       )
-      .subscribe(() => {});
+      .subscribe();
   }
 
   handleAttack(character$: Observable<Character>) {
     combineLatest([character$, this.isAttack$])
       .pipe(
+        takeUntil(this.unSubscribe$),
         filter(([character, isAttack]) => !!isAttack && !!character.target),
         switchMap(
           ([character]) => (character as Character).target?.currentHpPercent$!
@@ -278,7 +278,6 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
       return;
     }
 
-    // debugger;
     const imageObj = new Image();
     imageObj.onload = () => {
       const aniImages = this.character?.animationImages[ani];

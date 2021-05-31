@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { cloneDeep, forEach, forIn } from 'lodash';
-import { BehaviorSubject, from, Observable } from 'rxjs';
+import { Layer } from 'konva/lib/Layer';
+import { cloneDeep, forEach, forIn, isEmpty } from 'lodash';
+import { BehaviorSubject, combineLatest, from, Observable } from 'rxjs';
 import { mergeMap, switchMap, filter } from 'rxjs/operators';
 import { MaxCharacterEachSide } from '../configs/config.game';
 import { Character } from '../models/character';
@@ -34,9 +35,13 @@ export class PlayService {
     monsterLayers: [],
   });
 
+  endGame$ = new BehaviorSubject<boolean>(false);
+
   matchs$ = new BehaviorSubject<Match[]>([]);
 
   characterComingMatch$ = new BehaviorSubject<PairCharacterMatch[]>([]);
+
+  freeCharacterLayer$ = new BehaviorSubject<CharacterLayer[]>([]);
 
   queueCharacters$ = new BehaviorSubject<QueueCharacters>({
     heroes: [],
@@ -54,7 +59,6 @@ export class PlayService {
 
   init(heroLayers: CharacterLayer[], monsterLayers: CharacterLayer[]) {
     console.log('PlayService init');
-    // debugger;
     this.layers$.next({
       heroLayers,
       monsterLayers,
@@ -62,7 +66,6 @@ export class PlayService {
   }
 
   startGame() {
-    debugger;
     console.log('PlayService startGame');
     const { heroLayers, monsterLayers } = this.layers$.value;
     const { matchs, pairs } = this.createMatchs(heroLayers, monsterLayers);
@@ -70,24 +73,71 @@ export class PlayService {
     console.log('PlayService get matchs', matchs);
     console.log('PlayService get pairs', pairs);
 
-    // debugger;
-
     this.matchs$.next(matchs);
     this.characterComingMatch$.next(pairs);
 
     this.listenMatch();
+    // this.handleFreeCharacterLayer();
+  }
+
+  // todo: handle the free character
+  // seems like it is wrong
+  // handleFreeCharacterLayer() {
+  //   this.freeCharacterLayer$
+  //     .pipe(filter((layer) => !!layer.length))
+  //     .subscribe((layers) => {
+  //       const { heroLayers, monsterLayers } = layers.reduce<{
+  //         heroLayers: CharacterLayer[];
+  //         monsterLayers: CharacterLayer[];
+  //       }>(
+  //         (memo, layer) => {
+  //           if (this.isMonsterLayer(layer)) {
+  //             memo.monsterLayers.push(layer);
+  //           } else {
+  //             memo.heroLayers.push(layer);
+  //           }
+
+  //           return memo;
+  //         },
+  //         {
+  //           heroLayers: [],
+  //           monsterLayers: [],
+  //         }
+  //       );
+
+  //       this.createMatchs(heroLayers, monsterLayers);
+  //     });
+  // }
+
+  isMonsterLayer(layer: CharacterLayer) {
+    return layer.character instanceof Monster;
   }
 
   listenMatch() {
     this.matchs$
       .pipe(
         mergeMap((matchs) => from(matchs)),
-        switchMap((match) => match.status$),
-        filter((status) => status === MatchStatus.end)
+        switchMap((match) => combineLatest([match.status$, match.winners$])),
+        filter(
+          ([status, winners]) => !isEmpty(winners) && status === MatchStatus.end
+        )
       )
-      .subscribe(() => {
+      .subscribe(([status, winners]) => {
         const playingMatch = this.matchs$.value.filter((match) => !match.isEnd);
-        const doneMatch = this.matchs$.value.filter((match) => match.isEnd);
+
+        // create new pair for the winner
+        // if (!playingMatch.length) {
+        //   this.createPair(winners, playingMatch);
+        // } else {
+        //   this.freeCharacterLayer$.next([
+        //     ...this.freeCharacterLayer$.value,
+        //     ...winners,
+        //   ]);
+        // }
+
+        if (!playingMatch.length) {
+          this.endGame$.next(true);
+        }
 
         this.matchs$.next(playingMatch);
       });
@@ -101,7 +151,7 @@ export class PlayService {
     pairs: PairCharacterMatch[];
   } {
     // pair chacracter find match
-    const pairs: PairCharacterMatch[] = [];
+    let pairs: PairCharacterMatch[] = [];
 
     const heroLength = heroLayers.length;
     const monsterLength = monsterLayers.length;
@@ -121,21 +171,43 @@ export class PlayService {
         -Math.abs(heroLength - monsterLength)
       );
 
-      freeLayers.forEach((layer) => {
-        const nearestMatch = this.findNearestMatch(layer, matchs);
-        if (nearestMatch && layer.character) {
-          pairs.push({
-            characterLayer: layer,
-            match: nearestMatch,
-          });
-        }
-      });
+      pairs = this.createPair(freeLayers, matchs);
+      // freeLayers.forEach((layer) => {
+      //   const nearestMatch = this.findNearestMatch(layer, matchs);
+      //   if (nearestMatch && layer.character) {
+      //     pairs.push({
+      //       characterLayer: layer,
+      //       match: nearestMatch,
+      //     });
+      //   }
+      // });
     }
 
     return {
       matchs,
       pairs,
     };
+  }
+
+  createPair(layers: CharacterLayer[], matchs: Match[]): PairCharacterMatch[] {
+    const pairs: PairCharacterMatch[] = [];
+
+    layers.forEach((layer) => {
+      const nearestMatch = this.findNearestMatch(layer, matchs);
+
+      const isExisting = Object.values(this.characterComingMatch$.value).some(
+        (pair) => pair.characterLayer.character?.id === layer.character?.id
+      );
+
+      if (nearestMatch && layer.character && !isExisting) {
+        pairs.push({
+          characterLayer: layer,
+          match: nearestMatch,
+        });
+      }
+    });
+
+    return pairs;
   }
 
   addCharacterComingMatch(pair: PairCharacterMatch) {
@@ -239,7 +311,20 @@ export class PlayService {
     });
   }
 
-  // onReady() {
-  //   const data =
-  // }
+  reset() {
+    this.layers$.next({
+      heroLayers: [],
+      monsterLayers: [],
+    });
+
+    this.endGame$.next(false);
+
+    this.matchs$.next([]);
+    this.characterComingMatch$.next([]);
+    this.freeCharacterLayer$.next([]);
+    this.queueCharacters$.next({
+      heroes: [],
+      monsters: [],
+    });
+  }
 }
