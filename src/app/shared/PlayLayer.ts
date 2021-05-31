@@ -9,7 +9,7 @@ import { HEROES, HeroImageWidth } from '../configs/mock-heroes';
 import { MONSTERS } from '../configs/mock-monster';
 import { MessageService } from '../message.service';
 import { Hero } from '../models/hero';
-import { Match } from '../models/match';
+import { Match, MatchStatus } from '../models/match';
 import { Monster } from '../models/monster';
 import { PlayService } from '../services/play.service';
 import { isOverTurned } from '../utils/character';
@@ -88,10 +88,12 @@ export class PlayLayer extends Konva.Layer implements OnDestroy {
           // debugger;
           // console.log(match._heroLayers());
           // console.log(match._monsterLayers());
-
-          [...match._heroLayers, ...match._monsterLayers].forEach((layer) => {
-            this.goToFightArea(layer, match);
-          });
+          if (match.status !== MatchStatus.end) {
+            debugger;
+            [...match._heroLayers, ...match._monsterLayers].forEach((layer) => {
+              this.goToFightArea(layer, match);
+            });
+          }
         });
       });
   }
@@ -144,6 +146,7 @@ export class PlayLayer extends Konva.Layer implements OnDestroy {
 
         match.prepareBattle(characterLayer);
         characterLayer.updateAnimation(CharacterAnimation.attack);
+        characterLayer.onAttack();
       }
     }, this);
 

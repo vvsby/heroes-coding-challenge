@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { forEach, forIn } from 'lodash';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, from, Observable } from 'rxjs';
+import { mergeMap, switchMap, filter } from 'rxjs/operators';
 import { Character } from '../models/character';
 import { Hero } from '../models/hero';
-import { Match } from '../models/match';
+import { Match, MatchStatus } from '../models/match';
 import { Monster } from '../models/monster';
 import { CharacterLayer } from '../shared/CharacterLayer';
 import { getDistanceBetween2Point } from '../utils/character';
@@ -60,6 +61,26 @@ export class PlayService {
 
     this.matchs$.next(matchs);
     this.characterComingMatch$.next(pairs);
+
+    this.listenMatch();
+  }
+
+  listenMatch() {
+    this.matchs$
+      .pipe(
+        mergeMap((matchs) => from(matchs)),
+        switchMap((match) => match.status$),
+        filter((status) => status === MatchStatus.end)
+      )
+      .subscribe(() => {
+        const playingMatch = this.matchs$.value.filter((match) => !match.isEnd);
+        const doneMatch = this.matchs$.value.filter((match) => match.isEnd);
+        // doneMatch.forEach(match => {
+        //   const freeLayers = match._heroLayers
+        // })
+
+        this.matchs$.next(playingMatch);
+      });
   }
 
   createMatchs(

@@ -26,9 +26,6 @@ export class Monster extends Character {
       imgSrc,
       animationImages,
     });
-
-    debugger;
-    console.log(this.health);
   }
 
   get realDamage(): number {

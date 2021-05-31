@@ -1,5 +1,6 @@
 import { flattenDeep } from 'lodash';
 import { AnimationImage } from '../models/hero';
+import { CharacterLayer } from '../shared/CharacterLayer';
 
 export const convertImageToSpriteModel = (
   images: AnimationImage[]
@@ -12,4 +13,13 @@ export const convertImageToSpriteModel = (
   ]);
   const sprite = flattenDeep(sprites);
   return sprite;
+};
+
+export const sumHp = (layers: CharacterLayer[]) => {
+  return layers.reduce((sum, layer) => {
+    const character = layer.character;
+    const currentHp = character?.currentHpPercent$.value || 0;
+    sum += currentHp;
+    return sum;
+  }, 0);
 };

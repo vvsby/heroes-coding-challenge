@@ -46,7 +46,6 @@ export abstract class Character {
     const { id, name, health, minDamage, maxDamage, imgSrc, animationImages } =
       params;
 
-    debugger;
     this.id = id;
     this.name = name;
     this.health = health || 100;
@@ -61,7 +60,6 @@ export abstract class Character {
   abstract realDamage: number;
 
   getDamage(damage: number) {
-    debugger;
     const hp =
       Math.max(this.currentHpPercent$.value * this.health - damage, 0) /
       this.health;
@@ -108,6 +106,10 @@ export abstract class Character {
 
   get isAlive() {
     return this.isAlive$.value;
+  }
+
+  get currentHpPercent() {
+    return this.currentHpPercent$.value;
   }
 
   //   set target(id: number | undefined) {

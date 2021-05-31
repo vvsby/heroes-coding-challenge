@@ -3,9 +3,17 @@ import Konva from 'konva';
 import { ContainerConfig } from 'konva/lib/Container';
 import { LayerConfig } from 'konva/lib/Layer';
 import { SpriteConfig } from 'konva/lib/shapes/Sprite';
-import { isNil } from 'lodash';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { filter, first, switchMap, takeUntil } from 'rxjs/operators';
+import { debounce, isNil } from 'lodash';
+import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
+import {
+  debounceTime,
+  delay,
+  filter,
+  first,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 import { HeroImageWidth } from '../configs/mock-heroes';
 import { Character } from '../models/character';
 import { Hero } from '../models/hero';
@@ -37,6 +45,8 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
   // private config: ContainerConfig | undefined;
 
   character: Character | undefined = undefined;
+
+  isAttack$ = new BehaviorSubject<boolean>(false);
 
   // heroImageWidth$ = new BehaviorSubject<number>(0);
 
@@ -123,22 +133,48 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
         });
       });
 
+    this.handleDead(character$);
+    this.handleAttack(character$);
+  }
+
+  handleDead(character$: Observable<Character>) {
     character$
       .pipe(
         switchMap((character) => character.isAlive$),
         filter((isAlive) => !isAlive),
-        first()
+        first(),
+        tap(() => {
+          this.updateAnimation(CharacterAnimation.dead);
+        }),
+        delay(950),
+        tap(() => {
+          this.heroSprite?.stop();
+        }),
+        delay(2000),
+        tap(() => {
+          this.removeChildren();
+        })
+      )
+      .subscribe(() => {});
+  }
+
+  handleAttack(character$: Observable<Character>) {
+    combineLatest([character$, this.isAttack$])
+      .pipe(
+        filter(([character, isAttack]) => !!isAttack && !!character.target),
+        switchMap(
+          ([character]) => (character as Character).target?.currentHpPercent$!
+        ),
+        filter((targetHp) => !targetHp)
       )
       .subscribe(() => {
-        this.updateAnimation(CharacterAnimation.dead, () => {
-          // const time = this.timeToDoneASprite();
-          // console.log(time);
-          debugger;
-          setTimeout(() => {
-            this.heroSprite?.stop();
-          }, 950);
-        });
+        this.updateAnimation(CharacterAnimation.standing);
+        this.isAttack$.next(false);
       });
+  }
+
+  onAttack() {
+    this.isAttack$.next(true);
   }
 
   timeToDoneASprite() {

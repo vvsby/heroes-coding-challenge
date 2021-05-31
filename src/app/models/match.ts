@@ -1,6 +1,13 @@
-import { isNil } from 'lodash';
-import { BehaviorSubject, interval, Observable, of, timer } from 'rxjs';
-import { filter, switchMap, takeUntil, takeWhile } from 'rxjs/operators';
+import { cloneDeep, isEmpty } from 'lodash';
+import { BehaviorSubject, from, interval, Observable, of } from 'rxjs';
+import {
+  filter,
+  map,
+  mergeMap,
+  switchMap,
+  takeUntil,
+  takeWhile,
+} from 'rxjs/operators';
 import { AttackDelayTime } from '../configs/config.game';
 import { CharacterLayer } from '../shared/CharacterLayer';
 import { Character } from './character';
@@ -8,8 +15,14 @@ import { Hero } from './hero';
 import { Monster } from './monster';
 
 export interface IMatchResult {
-  alive: Array<Character>;
-  dead: Array<Character>;
+  alive: Array<CharacterLayer>;
+  dead: Array<CharacterLayer>;
+}
+
+export enum MatchStatus {
+  preparing,
+  battling,
+  end,
 }
 
 export class Match {
@@ -18,9 +31,16 @@ export class Match {
   posX: number;
   posY: number;
 
-  private isEnd$ = new BehaviorSubject<boolean>(false);
-  private _result$ = new BehaviorSubject<IMatchResult | undefined>(undefined);
-  result$: Observable<IMatchResult>;
+  private _status$ = new BehaviorSubject<MatchStatus>(MatchStatus.preparing);
+  status$: Observable<MatchStatus>;
+
+  currentLayers$ = new BehaviorSubject<{
+    heroLayers: CharacterLayer[];
+    monsterLayers: CharacterLayer[];
+  }>({
+    heroLayers: [],
+    monsterLayers: [],
+  });
 
   constructor(
     heroLayers: CharacterLayer[],
@@ -34,21 +54,15 @@ export class Match {
     this.posX = posX;
     this.posY = posY;
 
-    this.result$ = this._result$
-      .asObservable()
-      .pipe(filter((result) => !isNil(result))) as Observable<IMatchResult>;
+    this.status$ = this._status$.asObservable();
 
-    // this.defFightPosition();
+    this.listenCharacterHp();
+
+    this.currentLayers$.next({
+      heroLayers: this.heroLayers,
+      monsterLayers: this.monsterLayers,
+    });
   }
-
-  //   defFightPosition() {
-  //     if (this.heroes.length && this.monsters.length) {
-  //       const beginHero = this.heroes[0];
-  //       const beginMonster = this.monsters[0];
-  //     }
-  //   }
-
-  //
 
   get _heroLayers() {
     return this.heroLayers;
@@ -56,6 +70,50 @@ export class Match {
 
   get _monsterLayers() {
     return this.monsterLayers;
+  }
+
+  get status() {
+    return this._status$.value;
+  }
+
+  get isEnd() {
+    return this.status === MatchStatus.end;
+  }
+
+  listenCharacterHp() {
+    this.currentLayers$
+      .pipe(
+        map((data) => [...data.heroLayers, ...data.monsterLayers]),
+        map((chracterLayers) => chracterLayers.map((layer) => layer.character)),
+        mergeMap((character) => from(character)),
+        switchMap((character) => character?.isAlive$!),
+        filter((isAlive) => !isAlive)
+      )
+      .subscribe(() => {
+        // dont deep clone the observable
+        const currentLayer = this.currentLayers$.value;
+
+        // remove the dead layer
+        Object.keys(currentLayer).forEach((layerType) => {
+          let layers =
+            currentLayer[layerType as 'heroLayers' | 'monsterLayers'];
+
+          layers = layers.filter((layer) => !layer.character?.isAlive);
+        });
+
+        if (
+          isEmpty(
+            currentLayer.heroLayers || isEmpty(currentLayer.monsterLayers)
+          )
+        ) {
+          this._status$.next(MatchStatus.end);
+        }
+
+        // debugger;
+        console.log(currentLayer);
+
+        this.currentLayers$.next(currentLayer);
+      });
   }
 
   // handle begin character or character finding match
@@ -70,23 +128,37 @@ export class Match {
     if (!isExisting) {
       if (characterLayer.character instanceof Hero) {
         this.heroLayers.push(characterLayer);
+
+        this.currentLayers$.next({
+          ...this.currentLayers$.value,
+          heroLayers: this.heroLayers,
+        });
       } else {
         this.monsterLayers.push(characterLayer);
+
+        this.currentLayers$.next({
+          ...this.currentLayers$.value,
+          monsterLayers: this.monsterLayers,
+        });
       }
     }
 
     // define target and start attack
     const defTargetSuccess = this.defTarget(characterLayer);
     if (defTargetSuccess) {
+      if (this.status !== MatchStatus.battling) {
+        this._status$.next(MatchStatus.battling);
+      }
+
       this.handleAttack(characterLayer.character!);
     }
   }
 
-  startFight() {
-    interval(1000)
-      .pipe(takeUntil(this.isEnd$))
-      .subscribe(() => {});
-  }
+  // startFight() {
+  //   interval(1000)
+  //     .pipe(takeUntil(this.isEnd$))
+  //     .subscribe(() => {});
+  // }
 
   // define a target for chracter
   defTarget(characterLayer: CharacterLayer) {
@@ -106,7 +178,10 @@ export class Match {
     interval(AttackDelayTime)
       .pipe(
         switchMap(() => of(character)),
-        takeWhile((character: Character) => !!character.isAlive)
+        takeWhile(
+          (character: Character) =>
+            !!character.isAlive && !!character.target?.currentHpPercent
+        )
       )
       .subscribe(() => {
         character.target?.getDamage(character.realDamage);
