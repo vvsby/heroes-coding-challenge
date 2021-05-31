@@ -19,14 +19,22 @@
           {{ hero.name }}
         </p>
 
+        <p class="hero-name">
+          <span class="label">HP: </span>
+          {{ hero.health }}
+        </p>
+
         <p class="hero-attack">
           <span class="label">Damage: </span>
           <span>{{ hero.minDamage }} - {{ hero.maxDamage }}</span>
-          <strong *ngIf="hero.weapon"> + {{ hero.weapon.damage }}</strong>
+          <strong class="add" *ngIf="hero.weapon">
+            + {{ hero.weapon.damage }}</strong
+          >
         </p>
 
         <p *ngIf="hero.armour" class="hero-armour">
-          <span class="label">Armour: </span> {{ hero.armour.health || 0 }}
+          <span class="label">Armour: </span>
+          <strong class="add">{{ hero.armour.health || 0 }}</strong>
         </p>
       </div>
     </div>
@@ -47,6 +55,11 @@
           {{ monster.name }}
         </p>
 
+        <p class="hero-name">
+          <span class="label">HP: </span>
+          {{ monster.health }}
+        </p>
+
         <p class="hero-attack">
           <span class="label">Damage: </span>
           <span>{{ monster.minDamage }} - {{ monster.maxDamage }}</span>
@@ -59,8 +72,13 @@
 <div class="character-selected">
   <div class="content">
     <div class="team">
-      <div class="item" *ngFor="let item of heroSelected$ | async">
+      <div
+        class="item"
+        (click)="onRemove('heroes', item)"
+        *ngFor="let item of heroSelected$ | async; let i = index"
+      >
         <img [src]="item.avatar" alt="" *ngIf="item" />
+        <p class="slot">{{ i + 1 }}</p>
       </div>
     </div>
 
@@ -82,8 +100,13 @@
     </button>
 
     <div class="team">
-      <div class="item" *ngFor="let item of monsterSelected$ | async">
+      <div
+        class="item"
+        (click)="onRemove('monsters', item)"
+        *ngFor="let item of monsterSelected$ | async; let i = index"
+      >
         <img [src]="item.avatar" alt="" *ngIf="item" />
+        <p class="slot">{{ i + 1 }}</p>
       </div>
     </div>
   </div>

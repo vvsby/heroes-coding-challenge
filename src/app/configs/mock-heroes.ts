@@ -1,4 +1,8 @@
+import { Armour } from '../models/armour';
 import { Hero } from '../models/hero';
+import { Weapon } from '../models/weapon';
+import { ARMOURS } from './mock-armour';
+import { WEAPONS } from './mock-weapons';
 
 export const DefaultCharacterWidth = 300;
 export const DefaultCharacterHeight = 300;
@@ -132,10 +136,12 @@ const imagesPositionDead = [
 export const HEROES: Hero[] = [
   {
     id: 1,
-    name: 'Dr Nice',
+    name: 'Dragon Knight',
     health: 150,
     minDamage: 40,
     maxDamage: 50,
+    weapon: new Weapon(WEAPONS[1]),
+    armour: new Armour(ARMOURS[0]),
     avatar: '/assets/images/knight/avatar.png',
     imgSrc: {
       standing: '/assets/images/knight/standing.png',

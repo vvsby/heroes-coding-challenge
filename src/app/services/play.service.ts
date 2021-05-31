@@ -294,7 +294,8 @@ export class PlayService {
     const isExisting = characters.some((c) => c.id === cloneCharacter.id);
     if (!isAdd && isExisting) {
       // remove this character out of the queue
-      characters = characters.filter((c) => c.id !== cloneCharacter.id);
+      const index = characters.findIndex((c) => c.id === cloneCharacter.id);
+      characters = characters.filter((c, i) => i !== index);
     } else {
       //  this character out of the queue
       if (characters.length >= MaxCharacterEachSide) {

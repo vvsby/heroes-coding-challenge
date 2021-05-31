@@ -33,6 +33,8 @@ export class Hero extends Character {
     health?: number;
     minDamage: number;
     maxDamage: number;
+    weapon?: Weapon;
+    armour?: Armour;
     avatar: string;
     imgSrc: Record<CharacterAnimation, string>;
     animationImages: Record<
@@ -49,6 +51,8 @@ export class Hero extends Character {
       avatar,
       imgSrc,
       animationImages,
+      weapon,
+      armour,
     } = params;
 
     super({
@@ -69,6 +73,8 @@ export class Hero extends Character {
     this.minDamage = minDamage;
     this.maxDamage = maxDamage;
     this.imgSrc = imgSrc;
+    this.weapon = weapon;
+    this.armour = armour;
   }
 
   get heroHealth(): number {

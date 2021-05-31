@@ -283,8 +283,8 @@ export const MONSTERS: Monster[] = [
   {
     id: 20,
     name: 'Zombie',
-    minDamage: 30,
-    maxDamage: 35,
+    minDamage: 60,
+    maxDamage: 65,
     avatar: '/assets/images/zombie/avatar.png',
     imgSrc: {
       standing: '/assets/images/zombie/standing.png',
