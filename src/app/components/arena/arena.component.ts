@@ -6,6 +6,9 @@ import { WeaponInterface } from '../../interfaces/weapon.interface';
 
 const KONVA_WIDTH = 1000;
 const KONVA_HEIGHT = 1000;
+/**
+ * Konva stage config
+ */
 const KONVA_STAGE_CONFIG = {
   container: 'konva-stage',
   width: KONVA_WIDTH,
@@ -15,6 +18,9 @@ const IMAGE_WIDTH = 180;
 const IMAGE_HEIGHT = 180;
 const IMAGE_BORDER = 10;
 
+/**
+ * Arena component
+ */
 @Component({
   selector: 'app-arena',
   templateUrl: './arena.component.html',
@@ -26,26 +32,55 @@ export class ArenaComponent implements OnInit, OnChanges {
   @Output() heroesChange: EventEmitter<HeroExtendedInterface[]> = new EventEmitter<HeroExtendedInterface[]>();
   @Input() weapons: WeaponInterface[] = [];
 
+  /**
+   * ToDo move konva logic to separated service
+   */
   selectedHero: HeroExtendedInterface | undefined;
   private stage: Konva.Stage | undefined;
   private layer: Konva.Layer = new Konva.Layer();
 
+  /**
+   * @inheritDoc
+   */
   ngOnInit(): void {
     this.initKonva();
     this.initTimer();
   }
 
+  /**
+   * @inheritDoc
+   */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.heroes) {
       this.drawHeroes(this.heroes);
     }
   }
 
+  /**
+   * Method for change weapon for hero from arena
+   * @param weaponId: number | string
+   */
+  weaponSelected(weaponId: string | number) {
+    const { damage } = this.weapons.find(w => w.id === +weaponId) || { damage: 0 };
+
+    this.selectedHero!.attackDamage = damage;
+    this.selectedHero = undefined;
+  }
+
+  /**
+   * Initialization Konva stage
+   * @private
+   */
   private initKonva() {
     this.stage = new Konva.Stage(KONVA_STAGE_CONFIG);
     this.stage.add(this.layer);
   }
 
+  /**
+   * Drawing heroes on arena (layout)
+   * @param heroes: HeroExtendedInterface[]
+   * @private
+   */
   private drawHeroes(heroes: HeroExtendedInterface[]) {
     let x = 10;
     let y = 10;
@@ -64,17 +99,18 @@ export class ArenaComponent implements OnInit, OnChanges {
     this.layer.draw();
   }
 
-  weaponSelected(weaponId: string | number) {
-    const { damage } = this.weapons.find(w => w.id === +weaponId) || { damage: 0 };
-
-    this.selectedHero!.attackDamage = damage;
-    this.selectedHero = undefined;
-  }
-
+  /**
+   * Initializer for fight timer
+   * @private
+   */
   private initTimer() {
     timer(0, 1000).subscribe(() => this.fight());
   }
 
+  /**
+   * Fight method calculate damage for every hero on arena
+   * @private
+   */
   private fight() {
     const allHeroesDamage = this.heroes.reduce((result, hero) => result + hero.attackDamage, 0);
 
@@ -93,6 +129,13 @@ export class ArenaComponent implements OnInit, OnChanges {
     this.drawHeroes(this.heroes);
   }
 
+  /**
+   * Draw hero on arena layer
+   * @param hero
+   * @param x
+   * @param y
+   * @private
+   */
   private drawHero(hero: HeroExtendedInterface, x: number, y: number) {
     const img = new Image();
 

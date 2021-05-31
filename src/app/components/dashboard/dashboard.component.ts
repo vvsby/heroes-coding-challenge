@@ -7,6 +7,9 @@ import { ArmourService } from '../../services/armour.service';
 import { HeroService } from '../../services/hero.service';
 import { WeaponService } from '../../services/weapon.service';
 
+/**
+ * Dashboard component
+ */
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -25,15 +28,20 @@ export class DashboardComponent implements OnInit {
   ) {
   }
 
+  /**
+   * @inheritDoc
+   */
   ngOnInit() {
     this.loadHeroes();
     this.loadWeaponsAndArmours();
   }
 
-  loadHeroes(): void {
-    this.heroes$ = this.heroService.getHeroes();
-  }
-
+  /**
+   * Click by hero handler
+   * If hero already on arena - remove them from list active heroes, if not - add
+   *
+   * @param hero: HeroInterface
+   */
   heroClickHandler(hero: HeroInterface) {
     const index = this.selectedHeroes.findIndex(h => h.id === hero.id);
 
@@ -53,6 +61,18 @@ export class DashboardComponent implements OnInit {
     this.selectedHeroes = this.selectedHeroes.slice();
   }
 
+  /**
+   * Loading heroes from service
+   * @private
+   */
+  private loadHeroes(): void {
+    this.heroes$ = this.heroService.getHeroes();
+  }
+
+  /**
+   * Getting weapons and armours
+   * @private
+   */
   private loadWeaponsAndArmours() {
     this.weaponService.getWeapons().subscribe(weapons => this.weapons = weapons);
     this.armourService.getArmours().subscribe(armours => this.armours = armours);
