@@ -3,4 +3,4 @@
   <a (click)="heroClickHandler(hero)" *ngFor="let hero of heroes$ | async">{{hero.name}}</a>
 </div>
 
-<app-arena [(heroes)]="selectedHeroes"></app-arena>
+<app-arena [(heroes)]="selectedHeroes" [weapons]="weapons"></app-arena>

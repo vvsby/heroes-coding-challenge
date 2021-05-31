@@ -38,7 +38,7 @@ Open to all countries.  Open to remote work.  Flexible hours.
 - [x] When click on hero on the dashboard page it adds them to the canvas, showing their hero.imageSrc on the canvas
 - [x] When click on them again they are removed from the canvas
 - [x] Every second everyone on the stage attacks, dealing the damage of the weapon in their hand to all other heroes
-- [ ] You can click on hero and change the weapon and it updates the current battle
+- [x] You can click on hero and change the weapon and it updates the current battle
 - [x] When the hero gets down to <50 health show a red background around the hero
 - [x] When a hero gets to 0 they are removed from the canvas
 
