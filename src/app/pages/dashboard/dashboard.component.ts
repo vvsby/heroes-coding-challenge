@@ -66,9 +66,29 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const container = document.querySelector('#container');
     this.stage = new Konva.Stage({
       container: 'container',
-      width: container?.clientWidth,
-      height: 600,
+      width: 1000,
+      height: 411,
     });
+
+    const groundLayer = new Konva.Layer();
+    var groundImageObj = new Image();
+    const { width, height } = this.stage.getAttrs();
+    groundImageObj.onload = function () {
+      const groundImg = new Konva.Image({
+        x: 0,
+        y: 0,
+        image: groundImageObj,
+        width: width,
+        height: height,
+      });
+
+      // add the shape to the layer
+      groundLayer.add(groundImg);
+    };
+
+    groundImageObj.src = '/assets/ground.jpg';
+
+    this.stage.add(groundLayer);
   }
 
   // reuse for case play again
@@ -98,7 +118,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   onPlayAgain() {
-    this.stage?.removeChildren();
+    const currentPlayLayer = this.playerLayer$.value;
+    currentPlayLayer?.destroy();
+
     this.playService.reset();
     this.setupGame();
     this.gameState = GameState.prepare;

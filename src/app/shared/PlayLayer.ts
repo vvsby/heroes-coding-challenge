@@ -47,7 +47,7 @@ export class PlayLayer extends Konva.Layer implements OnDestroy {
           }
         : {
             x: width * 0.1,
-            y: (index + 1) * 0.1 * height,
+            y: (index + 1) * 0.2 * height,
           }
     );
   }
@@ -164,7 +164,7 @@ export class PlayLayer extends Konva.Layer implements OnDestroy {
     goalY = goalY + 50;
 
     const vx = (goalX - currentPosX) / TimeMoving;
-    const vy = (goalY - currentPosY + Math.random() * 10 - 5) / TimeMoving;
+    const vy = (goalY - currentPosY - Math.random() * 15) / TimeMoving;
 
     characterLayer.updateAnimation(CharacterAnimation.run);
 
