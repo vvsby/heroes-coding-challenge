@@ -135,6 +135,7 @@ export class PlayService {
         //   ]);
         // }
 
+        debugger
         if (!playingMatch.length) {
           this.endGame$.next(true);
         }

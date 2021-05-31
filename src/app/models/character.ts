@@ -69,10 +69,11 @@ export abstract class Character {
 
   // get the damage of character
   abstract realDamage: number;
+  abstract realHealth: number;
 
   getDamage(damage: number) {
     const hp =
-      Math.max(this.currentHpPercent$.value * this.health - damage, 0) /
+      Math.max(this.currentHpPercent$.value * this.realHealth - damage, 0) /
       this.health;
     this.currentHpPercent$.next(hp);
 

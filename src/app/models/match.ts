@@ -89,13 +89,8 @@ export class Match {
   listenCharacterHp() {
     this.currentLayers$
       .pipe(
-        // distinctUntilChanged(),
         mergeMap((data) => from([...data.heroLayers, ...data.monsterLayers])),
-        // map((chracterLayers) =>
-        //   chracterLayers.map((layer) => layer.character?.isAlive$)
-        // ),
-
-        switchMap((characterLayer) => characterLayer.character?.isAlive$!),
+        mergeMap((characterLayer) => characterLayer.character?.isAlive$!),
         filter((isAlive) => !isAlive && this.status !== MatchStatus.end)
       )
       .subscribe(() => {
@@ -103,14 +98,6 @@ export class Match {
         const currentLayer = this.currentLayers$.value;
 
         // remove the dead layer
-        // Object.keys(currentLayer).forEach((layerType) => {
-        // let layers =
-        //   currentLayer[layerType as 'heroLayers' | 'monsterLayers'];
-        // layers = layers.filter((layer) => layer.character?.isAlive$.value);
-        // currentLayer[layerType as 'heroLayers' | 'monsterLayers'] =
-        //   layers as CharacterLayer[];
-        // });
-
         for (const type in currentLayer) {
           let _type = type as 'heroLayers' | 'monsterLayers';
           let layers = currentLayer[_type];
@@ -118,19 +105,16 @@ export class Match {
           currentLayer[_type] = layers;
         }
 
-        console.log(currentLayer);
-
         if (
           isEmpty(currentLayer.heroLayers) ||
           isEmpty(currentLayer.monsterLayers)
         ) {
+          console.log('battle done');
           const freeLayers = currentLayer.heroLayers.length
             ? currentLayer.heroLayers
             : currentLayer.monsterLayers;
           this.winners$.next(freeLayers);
         }
-
-        console.log(currentLayer);
 
         this.currentLayers$.next(currentLayer);
       });

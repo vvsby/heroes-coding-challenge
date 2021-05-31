@@ -23,6 +23,8 @@ enum GameState {
   running,
   finished,
 }
+
+const PlayLayerName = 'PlayPlayer';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -94,6 +96,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   // reuse for case play again
   setupGame() {
     const playerLayer = new PlayLayer(this.playService);
+    playerLayer.setAttr('name', PlayLayerName)
     this.playerLayer$.next(playerLayer);
     this.stage?.add(playerLayer);
   }
@@ -118,13 +121,19 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   onPlayAgain() {
+    this.gameState = GameState.prepare;
+    this.ref.detectChanges();
+    // this.stage?.getLayers().forEach(layer => {
+    //   if (layer.getAttr('name') === PlayLayerName) {
+
+    //   }
+    // })
+
     const currentPlayLayer = this.playerLayer$.value;
     currentPlayLayer?.destroy();
 
     this.playService.reset();
     this.setupGame();
-    this.gameState = GameState.prepare;
-    this.ref.detectChanges();
   }
 
   // choose a character

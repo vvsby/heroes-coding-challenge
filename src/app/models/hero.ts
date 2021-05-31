@@ -77,7 +77,7 @@ export class Hero extends Character {
     this.armour = armour;
   }
 
-  get heroHealth(): number {
+  get realHealth(): number {
     return this.health + (this.armour?.health || 0);
   }
 

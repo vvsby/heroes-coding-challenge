@@ -42,4 +42,8 @@ export class Monster extends Character {
     // random dame between min and max damage
     return this.minDamage + Math.random() * (this.maxDamage - this.minDamage);
   }
+
+  get realHealth(): number {
+    return this.health;
+  }
 }
