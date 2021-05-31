@@ -9,20 +9,30 @@ export class Monster extends Character {
     health?: number;
     minDamage: number;
     maxDamage: number;
+    avatar: string;
     imgSrc: Record<CharacterAnimation, string>;
     animationImages: Record<
       CharacterAnimation,
-      { widthPerImage: number; image: AnimationImage[] }
+      { widthPerImage: number; heightPerImage: number; image: AnimationImage[] }
     >;
   }) {
-    const { id, name, health, minDamage, maxDamage, imgSrc, animationImages } =
-      params;
+    const {
+      id,
+      name,
+      health,
+      minDamage,
+      maxDamage,
+      avatar,
+      imgSrc,
+      animationImages,
+    } = params;
     super({
       id,
       name,
       health,
       minDamage,
       maxDamage,
+      avatar,
       imgSrc,
       animationImages,
     });

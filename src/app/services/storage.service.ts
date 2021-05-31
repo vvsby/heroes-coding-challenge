@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ARMOURS } from '../configs/mock-armour';
 import { HEROES } from '../configs/mock-heroes';
+import { MONSTERS } from '../configs/mock-monster';
 import { WEAPONS } from '../configs/mock-weapons';
 import { localStorageKeys } from '../constant';
 import { MessageService } from '../message.service';
 import { Armour } from '../models/armour';
 import { Hero } from '../models/hero';
+import { Monster } from '../models/monster';
 import { Weapon } from '../models/weapon';
 
 @Injectable({ providedIn: 'root' })
@@ -21,6 +23,9 @@ export class StorageService {
     // const localStorageData = localStorage.
     this.data$ = this.dataSubject$.asObservable();
 
+    const localMonster = localStorage.getItem(localStorageKeys.monsters);
+    const monsters = this.mergeDataToDefault(localMonster, MONSTERS);
+
     const localHeroes = localStorage.getItem(localStorageKeys.heroes);
     const heroes = this.mergeDataToDefault(localHeroes, HEROES);
 
@@ -33,6 +38,7 @@ export class StorageService {
     const currentRound = localStorage.getItem(localStorageKeys.round) || '1';
 
     const data: LocaleDataDto = {
+      monsters,
       heroes,
       armours,
       weapons,
@@ -94,6 +100,7 @@ interface BaseModelStorage {
 }
 
 class LocaleDataDto {
+  monsters: Monster[];
   heroes: Hero[];
   armours: Armour[];
   weapons: Weapon[];
@@ -104,6 +111,7 @@ class LocaleDataDto {
 
   static getDefault() {
     return new LocaleDataDto({
+      monsters: MONSTERS,
       heroes: HEROES,
       armours: ARMOURS,
       weapons: WEAPONS,
@@ -113,13 +121,15 @@ class LocaleDataDto {
   }
 
   constructor(params: {
+    monsters: Monster[];
     heroes: Hero[];
     armours: Armour[];
     weapons: Weapon[];
     round: number;
     playerState: any;
   }) {
-    const { heroes, armours, weapons, round, playerState } = params;
+    const { monsters, heroes, armours, weapons, round, playerState } = params;
+    this.monsters = monsters;
     this.heroes = heroes;
     this.armours = armours;
     this.weapons = weapons;

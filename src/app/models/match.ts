@@ -84,14 +84,16 @@ export class Match {
     this.currentLayers$
       .pipe(
         map((data) => [...data.heroLayers, ...data.monsterLayers]),
-        map((chracterLayers) => chracterLayers.map((layer) => layer.character)),
-        mergeMap((character) => from(character)),
-        switchMap((character) => character?.isAlive$!),
+        map((chracterLayers) =>
+          chracterLayers.map((layer) => layer.character?.isAlive$)
+        ),
+        switchMap((isAlive) => from(isAlive)),
         filter((isAlive) => !isAlive)
       )
       .subscribe(() => {
         // dont deep clone the observable
         const currentLayer = this.currentLayers$.value;
+        debugger;
 
         // remove the dead layer
         Object.keys(currentLayer).forEach((layerType) => {

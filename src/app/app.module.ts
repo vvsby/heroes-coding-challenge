@@ -11,6 +11,7 @@ import { MessagesComponent } from './messages/messages.component';
 import { AppRoutingModule } from './app-routing.module';
 import { WeaponsComponent } from './pages/weapons/weapons.component';
 import { ArmoursComponent } from './pages/armours/armours.component';
+import { MainStageComponent } from './pages/dashboard/components/main-stage/main-stage.component';
 
 @NgModule({
   imports: [BrowserModule, FormsModule, AppRoutingModule],
@@ -22,6 +23,7 @@ import { ArmoursComponent } from './pages/armours/armours.component';
     MessagesComponent,
     WeaponsComponent,
     ArmoursComponent,
+    MainStageComponent,
   ],
   bootstrap: [AppComponent],
 })

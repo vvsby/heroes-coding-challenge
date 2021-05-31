@@ -285,6 +285,7 @@ export const MONSTERS: Monster[] = [
     name: 'Zombie',
     minDamage: 30,
     maxDamage: 35,
+    avatar: '/assets/images/zombie/avatar.png',
     imgSrc: {
       standing: '/assets/images/zombie/standing.png',
       run: '/assets/images/zombie/run.png',
@@ -294,21 +295,25 @@ export const MONSTERS: Monster[] = [
     animationImages: {
       standing: {
         widthPerImage: 248.53,
+        heightPerImage: 300,
         image: standingPositon,
       },
 
       run: {
         widthPerImage: 248.6,
+        heightPerImage: 300,
         image: walkPosition,
       },
 
       attack: {
         widthPerImage: 248.5,
+        heightPerImage: 300,
         image: attackPosition,
       },
 
       dead: {
         widthPerImage: 358.75,
+        heightPerImage: 300,
         image: deadPosition,
       },
     },
@@ -319,4 +324,4 @@ export const MONSTERS: Monster[] = [
   // { id: 5, name: 'Magneta', minDamage: 30, maxDamage: 35 },
   // { id: 6, name: 'RubberMan', minDamage: 30, maxDamage: 35 },
   // { id: 7, name: 'Dynama', minDamage: 30, maxDamage: 35 },
-].map((data) => new Hero(data));
+].map((data) => new Monster(data));

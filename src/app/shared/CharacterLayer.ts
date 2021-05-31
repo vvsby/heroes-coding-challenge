@@ -14,7 +14,10 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import { HeroImageWidth } from '../configs/mock-heroes';
+import {
+  DefaultCharacterWidth,
+  DefaultCharacterHeight,
+} from '../configs/mock-heroes';
 import { Character } from '../models/character';
 import { Hero } from '../models/hero';
 import { OverTurned } from '../utils/character';
@@ -31,10 +34,12 @@ const defaultCharacterPos = {
   y: 50,
 };
 
+const offseTop = 20;
+
 // calculate the hero image width to get the healthBar width and position
-const healthBarWidth = HeroImageWidth * 0.4;
+const healthBarWidth = DefaultCharacterWidth * 0.4;
 // distance from hero.x to healthBar.x
-const healthBarOffsetHeroX = (HeroImageWidth * 0.4) / 2;
+const healthBarOffsetHeroX = (DefaultCharacterWidth * 0.4) / 2;
 
 // export type HeroAnimation = 'standing' | 'attack' | 'dead';
 @Directive()
@@ -48,7 +53,7 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
 
   isAttack$ = new BehaviorSubject<boolean>(false);
 
-  // heroImageWidth$ = new BehaviorSubject<number>(0);
+  // DefaultCharacterWidth$ = new BehaviorSubject<number>(0);
 
   private position$ = new BehaviorSubject<{
     x: number;
@@ -92,14 +97,14 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
     let attrs = {
       x,
       y,
-      width: HeroImageWidth,
-      height: 300,
+      width: DefaultCharacterWidth,
+      height: DefaultCharacterHeight,
     };
 
     if (overturn) {
       attrs = {
         ...attrs,
-        ...this.overTurnConfig(),
+        ...this.overTurnConfig(config),
       };
     }
 
@@ -130,6 +135,7 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
         )[0];
         healthPercent.setAttrs({
           width: currentHpPercent * healthBarWidth,
+          fill: currentHpPercent < 0.2 ? 'red' : 'green',
         });
       });
 
@@ -193,13 +199,17 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
     const { animations } = character;
     const heroAnimation: CharacterAnimation = CharacterAnimation.standing;
 
+    const { widthPerImage, heightPerImage } =
+      character.animationImages[heroAnimation];
+
     // handle image load and init sprite
     const imageObj = new Image();
     imageObj.onload = () => {
       this.heroSprite = new Konva.Sprite({
         frameRate: 7,
         frameIndex: 0,
-        width: HeroImageWidth,
+        width: widthPerImage,
+        height: heightPerImage,
         image: imageObj,
         animations,
         animation: heroAnimation,
@@ -207,6 +217,11 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
         x: 0,
         y: 0,
       });
+
+      // this.setAttrs({
+      //   width: widthPerImage,
+      //   height: heightPerImage,
+      // });
 
       this.heroSprite.listening(false);
 
@@ -227,7 +242,7 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
   setupHealthBar(character: Character) {
     const healthBarWrapper = new Konva.Rect({
       x: healthBarOffsetHeroX,
-      y: -20,
+      y: -offseTop,
       width: healthBarWidth,
       height: 15,
       stroke: '#444',
@@ -238,7 +253,7 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
     const healthPercent = new Konva.Rect({
       name: 'healthPercent',
       x: healthBarOffsetHeroX,
-      y: -20,
+      y: -offseTop,
       width: healthBarWidth,
       height: 15,
       fill: 'green',
@@ -268,8 +283,15 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
     imageObj.onload = () => {
       const aniImages = this.character?.animationImages[ani];
       const imageWidth = aniImages?.widthPerImage;
+      const imageHeight = aniImages?.widthPerImage;
       const frameLength = aniImages?.image.length;
-      this.setAttr('width', imageWidth);
+
+      // this code seems like useless for this case
+      // this.setAttrs({
+      //   width: imageWidth,
+      //   height: imageHeight,
+      // });
+
       this.heroSprite?.setAttrs({
         animation: ani,
         image: imageObj,
@@ -285,10 +307,10 @@ export class CharacterLayer extends Konva.Group implements OnDestroy {
     imageObj.src = this.character?.getImgByAnimation(ani);
   };
 
-  overTurnConfig() {
+  overTurnConfig(config: any) {
     return {
-      scaleX: -1,
-      offsetX: HeroImageWidth,
+      scaleX: -1 * (config.scaleX || 1),
+      offsetX: DefaultCharacterWidth,
       [OverTurned]: true,
     };
   }

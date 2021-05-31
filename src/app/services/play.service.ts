@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { forEach, forIn } from 'lodash';
+import { cloneDeep, forEach, forIn } from 'lodash';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { mergeMap, switchMap, filter } from 'rxjs/operators';
+import { MaxCharacterEachSide } from '../configs/config.game';
 import { Character } from '../models/character';
 import { Hero } from '../models/hero';
 import { Match, MatchStatus } from '../models/match';
@@ -16,13 +17,15 @@ interface PairCharacterMatch {
   match: Match;
 }
 
+export interface QueueCharacters {
+  heroes: Hero[];
+  monsters: Monster[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class PlayService {
-  //   currentHero$ = new BehaviorSubject<CharacterLayer[]>([]);
-  //   currentMonster$ = new BehaviorSubject<CharacterLayer[]>([]);
-
   layers$ = new BehaviorSubject<{
     heroLayers: CharacterLayer[];
     monsterLayers: CharacterLayer[];
@@ -35,10 +38,19 @@ export class PlayService {
 
   characterComingMatch$ = new BehaviorSubject<PairCharacterMatch[]>([]);
 
+  queueCharacters$ = new BehaviorSubject<QueueCharacters>({
+    heroes: [],
+    monsters: [],
+  });
+
   constructor(
     private heroService: HeroService,
     private weaponService: WeaponService
   ) {}
+
+  get queueCharacter(): Observable<QueueCharacters> {
+    return this.queueCharacters$.asObservable();
+  }
 
   init(heroLayers: CharacterLayer[], monsterLayers: CharacterLayer[]) {
     console.log('PlayService init');
@@ -50,6 +62,7 @@ export class PlayService {
   }
 
   startGame() {
+    debugger;
     console.log('PlayService startGame');
     const { heroLayers, monsterLayers } = this.layers$.value;
     const { matchs, pairs } = this.createMatchs(heroLayers, monsterLayers);
@@ -75,9 +88,6 @@ export class PlayService {
       .subscribe(() => {
         const playingMatch = this.matchs$.value.filter((match) => !match.isEnd);
         const doneMatch = this.matchs$.value.filter((match) => match.isEnd);
-        // doneMatch.forEach(match => {
-        //   const freeLayers = match._heroLayers
-        // })
 
         this.matchs$.next(playingMatch);
       });
@@ -142,26 +152,6 @@ export class PlayService {
     this.characterComingMatch$.next(newValue);
   }
 
-  //   createNearestMatch(
-  //     findingLayers: CharacterLayer[],
-  //     targetLayers: CharacterLayer[]
-  //   ): Match[] {
-  //     const matchs = monsterLayers.map((monsterLayer, index) => {
-  //       const heroLayer = heroLayers[index];
-
-  //       const hero = heroLayer.character as Hero;
-  //       const monster = monsterLayer.character as Monster;
-
-  //       // const distance = getDistanceBetween2Point(heroLayer.x(), heroLayer.y(), monsterLayer.x(), monsterLayer.y())
-  //       const posX = Math.abs(monsterLayer.x() - heroLayer.x()) / 2;
-  //       const posY = Math.abs(monsterLayer.y() - heroLayer.y()) / 2;
-
-  //       return new Match([hero], [monster], posX, posY);
-  //     });
-
-  //     return matchs;
-  //   }
-
   /**
    * simple match hero to monster
    */
@@ -171,13 +161,8 @@ export class PlayService {
   ) {
     const matchs = monsterLayers.map((monsterLayer, index) => {
       const heroLayer = heroLayers[index];
-
-      const hero = heroLayer.character as Hero;
-      const monster = monsterLayer.character as Monster;
-
-      // const distance = getDistanceBetween2Point(heroLayer.x(), heroLayer.y(), monsterLayer.x(), monsterLayer.y())
-      const posX = Math.abs(monsterLayer.x() - heroLayer.x()) / 2;
-      const posY = Math.abs(monsterLayer.y() - heroLayer.y()) / 2;
+      const posX = Math.abs(monsterLayer.x() + heroLayer.x()) / 2;
+      const posY = Math.abs(monsterLayer.y() + heroLayer.y()) / 2;
 
       return new Match([heroLayer], [monsterLayer], posX, posY);
     });
@@ -223,4 +208,38 @@ export class PlayService {
 
     return match;
   }
+
+  updateQueueCharacter(
+    type: 'heroes' | 'monsters',
+    isAdd = true,
+    character: Hero | Monster
+  ): void {
+    const cloneCharacter = cloneDeep(character);
+    const currentQueue = this.queueCharacters$.value;
+
+    let characters = currentQueue[type];
+
+    const isExisting = characters.some((c) => c.id === cloneCharacter.id);
+    if (!isAdd && isExisting) {
+      // remove this character out of the queue
+      characters = characters.filter((c) => c.id !== cloneCharacter.id);
+    } else {
+      //  this character out of the queue
+      if (characters.length >= MaxCharacterEachSide) {
+        alert(`Maximum ${MaxCharacterEachSide} slots`);
+        return;
+      }
+
+      characters.push(cloneCharacter as any);
+    }
+
+    this.queueCharacters$.next({
+      ...currentQueue,
+      [type]: characters,
+    });
+  }
+
+  // onReady() {
+  //   const data =
+  // }
 }

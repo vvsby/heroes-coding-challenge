@@ -1,1 +1,83 @@
-<div id="container"></div>
+<div class="title-group">
+  <div class="item">Heroes</div>
+  <div class="item">Monsters</div>
+</div>
+
+<div class="character-selection">
+  <!-- list hero -->
+  <div class="hero-list">
+    <div
+      class="hero-item"
+      (click)="onSelect('heroes', hero)"
+      *ngFor="let hero of heroService.data$ | async"
+    >
+      <img [src]="hero.avatar" />
+
+      <div class="hero-information">
+        <p class="hero-name">
+          <span class="label">Name: </span>
+          {{ hero.name }}
+        </p>
+
+        <p class="hero-attack">
+          <span class="label">Damage: </span>
+          <span>{{ hero.minDamage }} - {{ hero.maxDamage }}</span>
+          <strong *ngIf="hero.weapon"> + {{ hero.weapon.damage }}</strong>
+        </p>
+
+        <p *ngIf="hero.armour" class="hero-armour">
+          <span class="label">Armour: </span> {{ hero.armour.health || 0 }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- might I should create a template, but I dont have time for it -->
+  <div class="hero-list monster-list">
+    <div
+      class="hero-item"
+      (click)="onSelect('monsters', monster)"
+      *ngFor="let monster of monsterService.data$ | async"
+    >
+      <img [src]="monster.avatar" />
+
+      <div class="hero-information">
+        <p class="hero-name">
+          <span class="label">Name: </span>
+          {{ monster.name }}
+        </p>
+
+        <p class="hero-attack">
+          <span class="label">Damage: </span>
+          <span>{{ monster.minDamage }} - {{ monster.maxDamage }}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="character-selected">
+  <div class="content">
+    <div class="team">
+      <div class="item" *ngFor="let item of heroSelected$ | async">
+        <img [src]="item.avatar" alt="" *ngIf="item" />
+      </div>
+    </div>
+
+    <button
+      (click)="onFight()"
+      [disabled]="gameState === _gameState.running"
+      class="button-fight"
+    >
+      Fight
+    </button>
+
+    <div class="team">
+      <div class="item" *ngFor="let item of monsterSelected$ | async">
+        <img [src]="item.avatar" alt="" *ngIf="item" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-main-stage></app-main-stage>

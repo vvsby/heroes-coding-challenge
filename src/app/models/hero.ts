@@ -1,5 +1,4 @@
 import { CharacterAnimation } from '../shared/CharacterLayer';
-import { convertImageToSpriteModel } from '../utils/sprite.util';
 import { Armour } from './armour';
 import { Character } from './character';
 import { Weapon } from './weapon';
@@ -23,8 +22,8 @@ export class Hero extends Character {
   readonly maxDamage: number;
 
   // may be the hero doesn't have weapon and armour
-  private weapons?: Weapon;
-  private armour?: Armour;
+  weapon?: Weapon;
+  armour?: Armour;
 
   readonly imgSrc: Record<CharacterAnimation, string>;
 
@@ -34,14 +33,23 @@ export class Hero extends Character {
     health?: number;
     minDamage: number;
     maxDamage: number;
+    avatar: string;
     imgSrc: Record<CharacterAnimation, string>;
     animationImages: Record<
       CharacterAnimation,
-      { widthPerImage: number; image: AnimationImage[] }
+      { widthPerImage: number; heightPerImage: number; image: AnimationImage[] }
     >;
   }) {
-    const { id, name, health, minDamage, maxDamage, imgSrc, animationImages } =
-      params;
+    const {
+      id,
+      name,
+      health,
+      minDamage,
+      maxDamage,
+      avatar,
+      imgSrc,
+      animationImages,
+    } = params;
 
     super({
       id,
@@ -49,6 +57,7 @@ export class Hero extends Character {
       health,
       minDamage,
       maxDamage,
+      avatar,
       imgSrc,
       animationImages,
     });
@@ -70,7 +79,6 @@ export class Hero extends Character {
     // random the hero base dame between min and max damage
     const baseHeroDamage =
       this.minDamage + Math.random() * (this.maxDamage - this.minDamage);
-    console.log(baseHeroDamage + (this.weapons?.damage || 0));
-    return baseHeroDamage + (this.weapons?.damage || 0);
+    return baseHeroDamage + (this.weapon?.damage || 0);
   }
 }

@@ -1,7 +1,7 @@
 import { transform } from 'lodash';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { CharacterAnimation } from '../shared/CharacterLayer';
-import { convertImageToSpriteModel } from '../utils/sprite.util';
+import { convertImageToSpriteModel } from '../utils/common.util';
 import { AnimationImage } from './hero';
 
 export abstract class Character {
@@ -10,7 +10,7 @@ export abstract class Character {
 
   health: number;
 
-  //   currentHp: number;
+  avatar: string = '';
   currentHpPercent$: BehaviorSubject<number>;
 
   isAlive$ = new BehaviorSubject<boolean>(true);
@@ -26,6 +26,7 @@ export abstract class Character {
   readonly animationImages: Record<
     CharacterAnimation,
     {
+      heightPerImage: number;
       widthPerImage: number;
       image: AnimationImage[];
     }
@@ -37,14 +38,23 @@ export abstract class Character {
     health?: number;
     minDamage: number;
     maxDamage: number;
+    avatar: string;
     imgSrc: Record<CharacterAnimation, string>;
     animationImages: Record<
       CharacterAnimation,
-      { widthPerImage: number; image: AnimationImage[] }
+      { widthPerImage: number; heightPerImage: number; image: AnimationImage[] }
     >;
   }) {
-    const { id, name, health, minDamage, maxDamage, imgSrc, animationImages } =
-      params;
+    const {
+      id,
+      name,
+      health,
+      minDamage,
+      maxDamage,
+      avatar,
+      imgSrc,
+      animationImages,
+    } = params;
 
     this.id = id;
     this.name = name;
@@ -53,6 +63,7 @@ export abstract class Character {
     this.minDamage = minDamage;
     this.maxDamage = maxDamage;
     this.imgSrc = imgSrc;
+    this.avatar = avatar;
     this.animationImages = animationImages;
   }
 
@@ -65,7 +76,7 @@ export abstract class Character {
       this.health;
     this.currentHpPercent$.next(hp);
 
-    if (!hp) {
+    if (!hp && this.isAlive) {
       this.isAlive$.next(false);
       this.isAlive$.complete();
     }

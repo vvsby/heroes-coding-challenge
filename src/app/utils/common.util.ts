@@ -23,3 +23,7 @@ export const sumHp = (layers: CharacterLayer[]) => {
     return sum;
   }, 0);
 };
+
+export const blankArray = (length: number) => new Array(length).fill(undefined)
+
+export const fullFillArray = (length: number, arr: any[]) => blankArray(length).map((item, index) => arr[index] || undefined)

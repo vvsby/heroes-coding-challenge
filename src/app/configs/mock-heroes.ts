@@ -1,66 +1,67 @@
 import { Hero } from '../models/hero';
 
-export const HeroImageWidth = 250;
+export const DefaultCharacterWidth = 300;
+export const DefaultCharacterHeight = 300;
 
 const imagesPosition = [
   {
     x: 0,
     y: 0,
-    width: HeroImageWidth,
+    width: 250,
     height: 300,
   },
   {
     x: 249.1,
     y: 0,
-    width: HeroImageWidth,
+    width: 250,
     height: 300,
   },
   {
     x: 498.2,
     y: 0,
-    width: HeroImageWidth,
+    width: 250,
     height: 300,
   },
   {
     x: 747.3,
     y: 0,
-    width: HeroImageWidth,
+    width: 250,
     height: 300,
   },
   {
     x: 996.4,
     y: 0,
-    width: HeroImageWidth,
+    width: 250,
     height: 300,
   },
   {
     x: 1245.5,
     y: 0,
-    width: HeroImageWidth,
+    width: 250,
     height: 300,
   },
   {
     x: 1494.6,
     y: 0,
-    width: HeroImageWidth,
+    width: 250,
     height: 300,
   },
   {
     x: 1743.7,
     y: 0,
-    width: HeroImageWidth,
+    width: 250,
     height: 300,
   },
   {
     x: 1992.8,
     y: 0,
-    width: HeroImageWidth,
+    width: 250,
     height: 300,
   },
   {
     x: 2241.9,
     y: 0,
-    width: HeroImageWidth,
+    width: 250,
     height: 300,
   },
 ];
@@ -135,6 +136,7 @@ export const HEROES: Hero[] = [
     health: 150,
     minDamage: 40,
     maxDamage: 50,
+    avatar: '/assets/images/knight/avatar.png',
     imgSrc: {
       standing: '/assets/images/knight/standing.png',
       run: '/assets/images/knight/run.png',
@@ -144,21 +146,25 @@ export const HEROES: Hero[] = [
     animationImages: {
       standing: {
         widthPerImage: 249.1,
+        heightPerImage: 300,
         image: imagesPosition,
       },
 
       run: {
         widthPerImage: 249.1,
+        heightPerImage: 300,
         image: imagesPosition,
       },
 
       attack: {
         widthPerImage: 249.1,
+        heightPerImage: 300,
         image: imagesPosition,
       },
 
       dead: {
         widthPerImage: 377,
+        heightPerImage: 300,
         image: imagesPositionDead,
       },
     },
