@@ -73,3 +73,15 @@ Open to all countries.  Open to remote work.  Flexible hours.
 - refactor: (refactoring production code, eg. renaming a variable)
 - test: (adding missing tests, refactoring tests; no production code change)
 - chore: (updating grunt tasks etc; no production code change)
+
+# Result
+
+hours spent, total = 19.35
+
+Suggestions on how would improve if had more time
+
+- Use reactive forms instead template-driven
+- Use NgRx for have all features keep and update state
+- Write E2E tests
+- Use serviceworker for calculating battle fights
+- Add some animations for battle stage
