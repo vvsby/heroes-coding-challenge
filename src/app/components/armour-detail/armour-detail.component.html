@@ -1,0 +1,13 @@
+<div *ngIf="armour">
+  <h2>{{armour.name | uppercase}} Details</h2>
+  <div><span>id: </span>{{armour.id}}</div>
+  <div>
+    <label for="armour-name">Armour name: </label>
+    <input [(ngModel)]="armour.name" id="armour-name" placeholder="Armour name"/>
+  </div>
+  <div>
+    <label for="armour-name">Armour name: </label>
+    <input [(ngModel)]="armour.health" id="armour-health" min="0" placeholder="Armour damage" type="number"/>
+  </div>
+  <button (click)="goBack()">go back</button>
+</div>

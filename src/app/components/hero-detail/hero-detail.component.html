@@ -1,0 +1,30 @@
+<div *ngIf="hero$ | async as hero">
+  <h2>{{hero.name | uppercase}} Details</h2>
+  <div><span>id: </span>{{hero.id}}</div>
+  <div>
+    <label for="hero-name">Hero name: </label>
+    <input [(ngModel)]="hero.name" id="hero-name" placeholder="Hero name"/>
+  </div>
+  <div>
+    <label for="hero-health">Hero health: </label>
+    <input [(ngModel)]="hero.health" id="hero-health" min="0" placeholder="Hero health" type="number"/>
+  </div>
+  <div>
+    <label for="hero-weapon">Hero weapon: </label>
+    <select [(ngModel)]="hero.weaponId" id="hero-weapon">
+      <option *ngFor="let w of weapons$ | async" [value]="w.id">{{w.name}}</option>
+    </select>
+  </div>
+  <div>
+    <label for="hero-armour">Hero armour: </label>
+    <select [(ngModel)]="hero.armourId" id="hero-armour">
+      <option *ngFor="let a of armours$ | async" [value]="a.id">{{a.name}}</option>
+    </select>
+  </div>
+  <div>
+    <label for="hero-image">Hero image: </label>
+    <img [src]="hero.imageSrc" alt="Hero image" class="hero-image"/>
+    <input (change)="handleInputChange($event, hero)" accept="image/*" id="hero-image" type="file"/>
+  </div>
+  <button (click)="goBack()">go back</button>
+</div>

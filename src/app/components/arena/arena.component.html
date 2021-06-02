@@ -1,0 +1,8 @@
+<div *ngIf="selectedHero" class="choose-weapon">
+  Choose new weapon for <b>{{selectedHero.name}}</b> -
+  <select #weapon [(ngModel)]="selectedHero.weaponId" id="hero-weapon">
+    <option *ngFor="let w of weapons" [value]="w.id">{{w.name}}</option>
+  </select>
+  <button (click)="weaponSelected(weapon.value)">done</button>
+</div>
+<div id="konva-stage"></div>
